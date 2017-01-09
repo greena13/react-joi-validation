@@ -1,0 +1,57 @@
+{
+  "name": "react-joi-validation",
+  "version": "0.0.1",
+  "description": "Extremely flexible validation using Joi and React",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "babel --presets=es2015,stage-0,react src -d lib",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/greena13/react-joi-validation.git"
+  },
+  "keywords": [
+    "React",
+    "Joi",
+    "validation",
+    "forms"
+  ],
+  "files": [
+    "lib",
+    "package.json",
+    "README.md"
+  ],
+  "author": "Aleck Greenham",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/greena13/react-joi-validation/issues"
+  },
+  "homepage": "https://github.com/greena13/react-joi-validation#readme",
+  "dependencies": {
+    "invariant": "^2.2.2",
+    "lodash.defaultsdeep": "^4.6.0",
+    "lodash.get": "^4.4.2",
+    "lodash.includes": "^4.3.0",
+    "lodash.isplainobject": "^4.0.6",
+    "lodash.isstring": "^4.0.1",
+    "lodash.keys": "^4.2.0",
+    "lodash.reduce": "^4.6.0",
+    "lodash.set": "^4.3.2",
+    "lodash.without": "^4.4.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.0.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "eslint": "^3.13.0",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^3.0.2",
+    "eslint-plugin-react": "^6.8.0"
+  },
+  "peerDependencies": {
+    "react": ">= 0.13.0"
+  }
+}
