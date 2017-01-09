@@ -224,12 +224,24 @@ return(
 )
 ```
 
+##### Validating on every change
+
 If you want to validate on every change, you can do so using the options argument:
 
 ```javascript
 return(
   <input value={username} onChange={changeHandler('username', { validate: true })} />  
 )
+```
+
+##### Setting value on render
+
+You can set the value a user interaction will have at render time using the `options.value` argument:
+
+```javascript
+return(
+  <input type='button' value={termsAndConditions} onChange={changeHandler('username', { value: true })} />  
+)        
 ```
 
 #### changeValue
