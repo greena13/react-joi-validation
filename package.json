@@ -1,6 +1,6 @@
 {
   "name": "react-joi-validation",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Extremely flexible validation using Joi and React",
   "main": "lib/index.js",
   "scripts": {
