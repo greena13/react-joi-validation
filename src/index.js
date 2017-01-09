@@ -143,21 +143,21 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     changeHandler(valuePath, options = {}) {
 
       return (event, value) => {
-        this.handleChange(valuePath, options.value || value);
-
-        if (options.validate) {
-          this.validate(options.validate === true ? valuePath : options.validate)
-        }
+        this.handleChange(valuePath, options.value || value, options);
       };
 
     }
 
-    handleChange(valuePath, value){
+    handleChange(valuePath, value, options = {}){
       const { values, touchedValues } = this.state;
 
       this.setState({
         values: set({ ...values }, scopedPath(valuePath), value),
         touchedValues: { ...touchedValues, [valuePath]: true }
+      }, () => {
+        if (options.validate) {
+          this.validate(options.validate === true ? valuePath : options.validate)
+        }
       });
 
     }
