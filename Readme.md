@@ -234,6 +234,7 @@ return(
 )
 ```
 
+You can also validate a field other than the one you are modifying by providing it as a string instead of `true` to the `validate` option.
 ##### Setting value on render
 
 You can set the value a user interaction will have at render time using the `options.value` argument:
