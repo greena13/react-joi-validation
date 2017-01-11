@@ -8,6 +8,7 @@ import reduce from 'lodash.reduce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import includes from 'lodash.includes';
 import without from 'lodash.without';
+import has from 'lodash.has';
 
 import isString from 'lodash.isstring';
 
@@ -174,7 +175,8 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     changeHandler(valuePath, options = {}) {
 
       return (event, value) => {
-        this.handleChange(valuePath, options.value || value, options);
+        const valueToUse = has(options, 'value') ? options.value : value;
+        this.handleChange(valuePath, valueToUse, options);
       };
 
     }
