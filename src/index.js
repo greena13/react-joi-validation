@@ -4,13 +4,21 @@ import React, { PropTypes, Component } from 'react';
 
 import set from 'lodash.set';
 import get from 'lodash.get';
-import reduce from 'lodash.reduce';
-import defaultsDeep from 'lodash.defaultsdeep';
+
+import has from 'lodash.has';
 import includes from 'lodash.includes';
 import without from 'lodash.without';
-import has from 'lodash.has';
+import keys from 'lodash.keys';
+import unique from 'lodash.uniq';
 
+import isUndefined from 'lodash.isundefined';
+import isPlainObject from 'lodash.isplainobject';
 import isString from 'lodash.isstring';
+
+import reduce from 'lodash.reduce';
+import map from 'lodash.map';
+import defaultsDeep from 'lodash.defaultsdeep';
+import merge from 'lodash.merge';
 
 import emptyFunc from './utils/emptyFunc';
 import arrayFrom from './utils/arrayFrom';
@@ -137,9 +145,9 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     }
 
     _valuesWithDefaults({ scope } = { }){
+      const { touchedValues } = this.state;
 
       if (only) {
-
         const validateableFields = arrayFrom(only);
 
         const propValues = pickDeep(this.props, validateableFields);
@@ -148,11 +156,15 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           ValidatedComponent.defaultProps, validateableFields
         );
 
-        const values = defaultsDeep({},
-          this.state.values,
-          propValues,
-          defaultValues
-        );
+        const exemptions = pickDeep(touchedValues, validateableFields);
+
+        const propsWithDefaults = defaultsDeep({}, propValues, defaultValues);
+
+        const values = this._defaultsWithExemptions({
+          defaultValue: propsWithDefaults,
+          overrides: this.state.values,
+          deepMergeExemptions: exemptions
+        });
 
         if (scope) {
           return unwrapObject(values);
@@ -161,15 +173,104 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
         }
 
       } else {
+        const propsWithDefaults = defaultsDeep({}, this.props, ValidatedComponent.defaultProps);
 
-        return defaultsDeep({},
-          this.state.values,
-          this.props,
-          ValidatedComponent.defaultProps
-        );
-
+        return this._defaultsWithExemptions({
+          defaultValue: propsWithDefaults,
+          overrides: this.state.values,
+          deepMergeExemptions: touchedValues
+        });
       }
 
+    }
+
+    _defaultsWithExemptions({ deepMergeExemptions = {}, overrides, defaultValue }) {
+
+      const valueHasBeenSpecificallySet = isString(deepMergeExemptions);
+
+      if (valueHasBeenSpecificallySet || isUndefined(defaultValue)) {
+
+        return overrides;
+
+      } else {
+        if (isUndefined(overrides)) {
+
+          return defaultValue;
+
+        } else {
+
+          if (isPlainObject(overrides)) {
+
+            const unionOfObjectKeys = unique([
+              ...keys(defaultValue),
+              ...keys(overrides)
+            ]);
+
+            return reduce(unionOfObjectKeys, (memo, key) => {
+              const valueHasBeenSpecificallySet = isString(deepMergeExemptions[key]);
+
+              if (valueHasBeenSpecificallySet) {
+                memo[key] = overrides[key];
+              } else {
+                memo[key] = this._defaultsWithExemptions({
+                  defaultValue: defaultValue[key],
+                  overrides: overrides[key],
+                  deepMergeExemptions: deepMergeExemptions[key]
+                });
+              }
+
+              return memo;
+
+            }, {});
+
+          } else if (Array.isArray(overrides)) {
+
+            const overridesIsLongerThanDefault =
+              overrides.length > defaultValue.length;
+
+            if (overridesIsLongerThanDefault) {
+              return map(overrides, (overrideElement, index) => {
+
+                const valueHasBeenSpecificallySet = isString(deepMergeExemptions[index]);
+
+                if (valueHasBeenSpecificallySet) {
+                  return overrideElement;
+                } else {
+                  return this._defaultsWithExemptions({
+                    defaultValue: defaultValue[index],
+                    overrides: overrideElement,
+                    deepMergeExemptions: deepMergeExemptions[index]
+                  });
+                }
+
+              });
+
+            } else {
+              return map(defaultValue, (defaultValueElement, index) => {
+
+                const valueHasBeenSpecificallySet = isString(deepMergeExemptions[index]);
+
+                if (valueHasBeenSpecificallySet) {
+                  return overrides[index];
+                } else {
+                  return this._defaultsWithExemptions({
+                    defaultValue: defaultValueElement,
+                    overrides: overrides[index],
+                    deepMergeExemptions: deepMergeExemptions[index]
+                  });
+                }
+
+              });
+            }
+
+          } else {
+
+            return overrides;
+
+          }
+        }
+
+      }
     }
 
     changeHandler(valuePath, options = {}) {
