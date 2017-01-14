@@ -186,7 +186,10 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
       this.setState({
         values: set({ ...values }, scopedPath(valuePath), value),
-        touchedValues: { ...touchedValues, [valuePath]: true }
+        touchedValues: merge(
+          touchedValues,
+          wrapObject({ [valuePath]: valuePath })
+        )
       }, () => {
         if (options.validate) {
           this.validate(options.validate === true ? valuePath : options.validate)
