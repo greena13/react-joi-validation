@@ -235,7 +235,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           }, {});
 
           this._passToValidatorFunction(
-            valuePaths,
+            valuePathsAsList,
             valuesToValidate,
             errorObject,
             afterValidationHandler
@@ -245,7 +245,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       } else {
 
         this._passToValidatorFunction(
-          valuePaths,
+          valuePathsAsList,
           valuesToValidate,
           {},
           afterValidationHandler
