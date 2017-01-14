@@ -234,7 +234,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
             return errors;
           }, {});
 
-          this._passToValidatorIfValidatingAll(
+          this._passToValidatorFunction(
             valuePaths,
             valuesToValidate,
             errorObject,
@@ -244,7 +244,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
       } else {
 
-        this._passToValidatorIfValidatingAll(
+        this._passToValidatorFunction(
           valuePaths,
           valuesToValidate,
           {},
@@ -254,7 +254,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       }
     }
 
-    _passToValidatorIfValidatingAll(valuePaths, values, errors, afterValidatorHasRun) {
+    _passToValidatorFunction(valuePaths, values, errors, afterValidatorHasRun) {
 
       if (validator) {
         validator({
