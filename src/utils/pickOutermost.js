@@ -17,7 +17,9 @@ function pickOutermost(target, list = []) {
 
   } else {
 
-    list.push(target);
+    if (target) {
+      list.push(target);
+    }
 
   }
 

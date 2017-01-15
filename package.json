@@ -30,6 +30,7 @@
   "homepage": "https://github.com/greena13/react-joi-validation#readme",
   "dependencies": {
     "invariant": "^2.2.2",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.defaultsdeep": "^4.6.0",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
@@ -39,9 +40,9 @@
     "lodash.isundefined": "^3.0.1",
     "lodash.keys": "^4.2.0",
     "lodash.map": "^4.6.0",
-    "lodash.merge": "^4.6.0",
     "lodash.reduce": "^4.6.0",
     "lodash.set": "^4.3.2",
+    "lodash.topath": "^4.5.2",
     "lodash.uniq": "^4.5.0",
     "lodash.without": "^4.4.0"
   },

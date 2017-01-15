@@ -18,16 +18,18 @@ import isString from 'lodash.isstring';
 import reduce from 'lodash.reduce';
 import map from 'lodash.map';
 import defaultsDeep from 'lodash.defaultsdeep';
-import merge from 'lodash.merge';
+import deepClone from 'lodash.clonedeep';
 
 import emptyFunc from './utils/emptyFunc';
 import arrayFrom from './utils/arrayFrom';
 import pickDeep from './utils/pickDeep';
 import pickOutermost from './utils/pickOutermost';
+import extendAnyTouchedAncestors from './utils/extendAnyTouchedAncestors';
 
 let Joi;
 
 const ALL_PATHS_SYMBOL = '*';
+
 const DEFAULT_STATE = {
   errors: {},
   values: {},
@@ -42,6 +44,10 @@ function includesAllValues(valuePaths) {
   } else {
     return valuePaths === ALL_PATHS_SYMBOL;
   }
+}
+
+function valueAtPathHasBeenTouched(value) {
+  return isString(value) || value && value[ALL_PATHS_SYMBOL];
 }
 
 const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validator, only }) => {
@@ -79,9 +85,13 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     const listOfTouchedValues = pickOutermost(touchedValues);
 
     return reduce(listOfTouchedValues, (activeErrors, valuePath) => {
-      set(activeErrors, valuePath, get(errors, valuePath));
+
+      if (!valuePath.endsWith(ALL_PATHS_SYMBOL)) {
+        set(activeErrors, valuePath, get(errors, valuePath));
+      }
+
       return activeErrors;
-    },{});
+    }, {});
   }
 
   class ValidatorComponent extends Component {
@@ -185,10 +195,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     }
 
     _defaultsWithExemptions({ deepMergeExemptions = {}, overrides, defaultValue }) {
-
-      const valueHasBeenSpecificallySet = isString(deepMergeExemptions);
-
-      if (valueHasBeenSpecificallySet || isUndefined(defaultValue)) {
+      if (valueAtPathHasBeenTouched(deepMergeExemptions) || isUndefined(defaultValue)) {
 
         return overrides;
 
@@ -207,9 +214,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
             ]);
 
             return reduce(unionOfObjectKeys, (memo, key) => {
-              const valueHasBeenSpecificallySet = isString(deepMergeExemptions[key]);
-
-              if (valueHasBeenSpecificallySet) {
+              if (valueAtPathHasBeenTouched(deepMergeExemptions[key])) {
                 memo[key] = overrides[key];
               } else {
                 memo[key] = this._defaultsWithExemptions({
@@ -231,9 +236,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
             if (overridesIsLongerThanDefault) {
               return map(overrides, (overrideElement, index) => {
 
-                const valueHasBeenSpecificallySet = isString(deepMergeExemptions[index]);
-
-                if (valueHasBeenSpecificallySet) {
+                if (valueAtPathHasBeenTouched(deepMergeExemptions[index])) {
                   return overrideElement;
                 } else {
                   return this._defaultsWithExemptions({
@@ -248,9 +251,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
             } else {
               return map(defaultValue, (defaultValueElement, index) => {
 
-                const valueHasBeenSpecificallySet = isString(deepMergeExemptions[index]);
-
-                if (valueHasBeenSpecificallySet) {
+                if (valueAtPathHasBeenTouched(deepMergeExemptions[index])) {
                   return overrides[index];
                 } else {
                   return this._defaultsWithExemptions({
@@ -274,7 +275,6 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     }
 
     changeHandler(valuePath, options = {}) {
-
       return (event, value) => {
         const valueToUse = has(options, 'value') ? options.value : value;
         this.handleChange(valuePath, valueToUse, options);
@@ -283,14 +283,15 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     }
 
     handleChange(valuePath, value, options = {}){
-      const { values, touchedValues } = this.state;
+      const { values } = this.state;
+
+      const newValues = deepClone(values);
+
+      set(newValues, scopedPath(valuePath), value);
 
       this.setState({
-        values: set({ ...values }, scopedPath(valuePath), value),
-        touchedValues: merge(
-          touchedValues,
-          wrapObject({ [valuePath]: valuePath })
-        )
+        values: newValues,
+        touchedValues: this._mergeTouchedValues([valuePath])
       }, () => {
         if (options.validate) {
           this.validate(options.validate === true ? valuePath : options.validate)
@@ -320,7 +321,6 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     }
 
     validate(valuePaths, afterValidationCallback = emptyFunc) {
-
       const valuePathsAsList = arrayFrom(valuePaths);
       const afterValidationHandler = this._afterValidationHandler(valuePathsAsList, afterValidationCallback);
 
@@ -390,14 +390,18 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       const { touchedValues } = this.state;
 
       return reduce(valuePaths, (newTouchedValues, valuePath)=>{
+
         const effectivePath = scopedPath(valuePath);
 
         if (effectivePath !== ALL_PATHS_SYMBOL) {
+
+          extendAnyTouchedAncestors(newTouchedValues, effectivePath, ALL_PATHS_SYMBOL);
+
           set(newTouchedValues, effectivePath, effectivePath);
         }
 
         return newTouchedValues;
-      }, { ...touchedValues });
+      }, deepClone(touchedValues));
     }
 
   }
