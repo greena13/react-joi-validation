@@ -32,6 +32,7 @@
     "invariant": "^2.2.2",
     "lodash.clonedeep": "^4.5.0",
     "lodash.defaultsdeep": "^4.6.0",
+    "lodash.foreach": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
     "lodash.includes": "^4.3.0",
