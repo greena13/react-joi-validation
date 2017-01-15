@@ -2,10 +2,13 @@ import toPath from 'lodash.topath';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import isString from 'lodash.isstring';
+import reduce from 'lodash.reduce';
+import deepClone from 'lodash.clonedeep';
 
 import isNumberString from './isNumberString';
+import Wildcard from '../constants/Wildcard';
 
-function extendAnyTouchedAncestors(target, path, indicator) {
+function extendAnyTouchedAncestors(target, path) {
   const pathSegments = toPath(path);
 
   const ancestorPathSegments = touchedAncestorPathSegments(target, pathSegments);
@@ -22,7 +25,7 @@ function extendAnyTouchedAncestors(target, path, indicator) {
       }
     }();
 
-    newPathNode[indicator] = indicator;
+    newPathNode[Wildcard] = Wildcard;
 
     set(target, ancestorPathSegments, newPathNode);
   }
@@ -45,4 +48,19 @@ function touchedAncestorPathSegments(target, pathSegments) {
   }
 }
 
-export default extendAnyTouchedAncestors;
+function mergeTouchedValues(newTouchedValuePaths, previouslyTouchedValues) {
+
+  return reduce(newTouchedValuePaths, (updatedTouchedValues, path)=>{
+
+    if (path !== Wildcard) {
+
+      extendAnyTouchedAncestors(updatedTouchedValues, path);
+
+      set(updatedTouchedValues, path, path);
+    }
+
+    return updatedTouchedValues;
+  }, deepClone(previouslyTouchedValues));
+}
+
+export default mergeTouchedValues;
