@@ -15,6 +15,9 @@ import reduce from 'lodash.reduce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import deepClone from 'lodash.clonedeep';
 import map from 'lodash.map';
+import each from 'lodash.foreach';
+
+import invariant from 'invariant';
 
 import emptyFunc from './utils/emptyFunc';
 import arrayFrom from './utils/arrayFrom';
@@ -92,7 +95,9 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       super(props, context);
 
       this.changeHandler = this.changeHandler.bind(this);
+      this.changesHandler = this.changesHandler.bind(this);
       this.handleChange = this.handleChange.bind(this);
+      this.handleChanges = this.handleChanges.bind(this);
 
       this.validateHandler = this.validateHandler.bind(this);
       this.validate = this.validate.bind(this);
@@ -114,7 +119,9 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           errors={ this._getActiveErrors() }
 
           changeHandler={ this.changeHandler }
+          changesHandler={ this.changesHandler }
           changeValue={ this.handleChange }
+          changeValues={ this.handleChanges }
 
           validateHandler={ this.validateHandler }
           validate={ this.validate }
@@ -192,25 +199,51 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
         const valueToUse = has(options, 'value') ? options.value : value;
         this.handleChange(valuePath, valueToUse, options);
       };
-
     }
 
-    handleChange(valuePath, value, options = {}){
+    changesHandler(changes, options) {
+      return () => {
+        this.handleChanges(changes, options);
+      };
+    }
+
+    handleChanges(changes, options = {}) {
+      invariant(Array.isArray(changes), 'Changes must be an array of path-value pairs');
+
       const { values, touchedValues } = this.state;
 
       const newValues = deepClone(values);
 
-      set(newValues, scopedPath(valuePath), value);
+      each(changes, ([path, value]) => {
+        set(newValues, scopedPath(path), value);
+      });
+
+      const valuePaths = map(changes, ([path]) => {
+        return path;
+      });
+
+      const scopedPaths = map(valuePaths, (valuePath) => {
+        return scopedPath(valuePath);
+      });
 
       this.setState({
         values: newValues,
-        touchedValues: mergeTouchedValues([ scopedPath(valuePath) ], touchedValues)
+        touchedValues: mergeTouchedValues(scopedPaths, touchedValues)
       }, () => {
         if (options.validate) {
-          this.validate(options.validate === true ? valuePath : options.validate)
+
+          if (options.validate === true) {
+            this.validate(valuePaths);
+          } else {
+            this.validate(options.validate)
+          }
         }
       });
 
+    }
+
+    handleChange(valuePath, value, options = {}){
+      this.handleChanges([[valuePath, value]], options)
     }
 
     validateAllHandler(callback = emptyFunc) {
