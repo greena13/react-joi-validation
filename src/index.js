@@ -96,8 +96,8 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
       this.changeHandler = this.changeHandler.bind(this);
       this.changesHandler = this.changesHandler.bind(this);
-      this.handleChange = this.handleChange.bind(this);
-      this.handleChanges = this.handleChanges.bind(this);
+      this.changeValue = this.changeValue.bind(this);
+      this.changeValues = this.changeValues.bind(this);
 
       this.validateHandler = this.validateHandler.bind(this);
       this.validate = this.validate.bind(this);
@@ -120,8 +120,8 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
           changeHandler={ this.changeHandler }
           changesHandler={ this.changesHandler }
-          changeValue={ this.handleChange }
-          changeValues={ this.handleChanges }
+          changeValue={ this.changeValue }
+          changeValues={ this.changeValues }
 
           validateHandler={ this.validateHandler }
           validate={ this.validate }
@@ -197,25 +197,25 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     changeHandler(valuePath, options = {}) {
       return (event, value) => {
         const valueToUse = has(options, 'value') ? options.value : value;
-        this.handleChange(valuePath, valueToUse, options);
+        this.changeValue(valuePath, valueToUse, options);
       };
     }
 
     changesHandler(changes, options) {
       return () => {
-        this.handleChanges(changes, options);
+        this.changeValues(changes, options);
       };
     }
 
-    handleChange(valuePath, value, options = {}){
+    changeValue(valuePath, value, options = {}){
       invariant(!Array.isArray(valuePath),
         'Value path passed to changeValue was an array. If you want to change multiple values at once, use `changeValues` (pluralized) instead.'
       );
 
-      this.handleChanges([[valuePath, value]], options)
+      this.changeValues([[valuePath, value]], options)
     }
 
-    handleChanges(changes, options = {}) {
+    changeValues(changes, options = {}) {
       invariant(Array.isArray(changes),
         'Changes must be an array of path-value pairs'
       );
