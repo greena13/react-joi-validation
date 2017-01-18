@@ -207,8 +207,18 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       };
     }
 
+    handleChange(valuePath, value, options = {}){
+      invariant(!Array.isArray(valuePath),
+        'Value path passed to changeValue was an array. If you want to change multiple values at once, use `changeValues` (pluralized) instead.'
+      );
+
+      this.handleChanges([[valuePath, value]], options)
+    }
+
     handleChanges(changes, options = {}) {
-      invariant(Array.isArray(changes), 'Changes must be an array of path-value pairs');
+      invariant(Array.isArray(changes),
+        'Changes must be an array of path-value pairs'
+      );
 
       const { values, touchedValues } = this.state;
 
@@ -240,10 +250,6 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
         }
       });
 
-    }
-
-    handleChange(valuePath, value, options = {}){
-      this.handleChanges([[valuePath, value]], options)
     }
 
     validateAllHandler(callback = emptyFunc) {
