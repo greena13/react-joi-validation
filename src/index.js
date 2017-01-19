@@ -46,7 +46,7 @@ function includesAllValues(valuePaths) {
   }
 }
 
-const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validator, only }) => {
+const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validator, only, pseudoValues = [] }) => {
   function usingSingularValidationScope(){
     return isString(only);
   }
@@ -80,7 +80,12 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
   function pickErrors(errors, touchedValues){
     const listOfTouchedValues = pickOutermost(touchedValues);
 
-    return reduce(listOfTouchedValues, (activeErrors, valuePath) => {
+    const valuesToPick = [
+      ...listOfTouchedValues,
+      ...pseudoValues
+    ];
+
+    return reduce(valuesToPick, (activeErrors, valuePath) => {
 
       if (!valuePath.endsWith(Wildcard)) {
         set(activeErrors, valuePath, get(errors, valuePath));
@@ -274,7 +279,9 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
     validate(valuePaths, afterValidationCallback = emptyFunc) {
       const valuePathsAsList = arrayFrom(valuePaths);
-      const afterValidationHandler = this._afterValidationHandler(valuePathsAsList, afterValidationCallback);
+
+      const afterValidationHandler =
+        this._afterValidationHandler(valuePathsAsList, afterValidationCallback);
 
       const valuesToValidate = this._valuesWithDefaults({ scope: true });
 
