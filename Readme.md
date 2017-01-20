@@ -9,6 +9,9 @@
 * Does not include Joi as a dependency to remain light weight, allow gradual integration into your projects and to remain environment agnostic - just point `react-joi-validation` at the version of Joi that is right for your project's environment and it will use it.
 * Transparently handles client and server data validations
 
+## Warning: Out of date documentation
+
+v1.0.0 has different behaviour than described below. Please use v0.0.8 until I have a chance to document v1.0.0 correctly.
 ## Usage
 
 ```javascript
