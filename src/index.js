@@ -320,7 +320,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       if (validator) {
         validator({
           valuePaths: pickOutermost(touchedValues),
-          valuesWithDefaults, validateAllValues, values, errors
+          valuesWithDefaults, validateAllValues, values, errors, props: { ...this.props }
         }, afterValidatorHasRun);
       } else {
         afterValidatorHasRun({ values, errors });
