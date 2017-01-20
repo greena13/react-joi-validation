@@ -208,7 +208,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
         const nextState = this._newState({ valuePaths, changes });
 
-        this._validate(nextState);
+        this._validate(nextState, options.callback || emptyFunc);
 
       } else {
         const nextState = this._newState({ changes });
