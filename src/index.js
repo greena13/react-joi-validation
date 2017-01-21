@@ -72,7 +72,11 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     return reduce(valuesToPick, (activeErrors, valuePath) => {
 
       if (!valuePath.endsWith(Wildcard)) {
-        set(activeErrors, valuePath, get(errors, valuePath));
+        const error = get(errors, valuePath);
+
+        if (error) {
+          set(activeErrors, valuePath, error);
+        }
       }
 
       return activeErrors;
