@@ -4,6 +4,7 @@ import React, { PropTypes, Component } from 'react';
 
 import set from 'lodash.set';
 import get from 'lodash.get';
+import drop from 'lodash.drop';
 
 import has from 'lodash.has';
 
@@ -60,11 +61,12 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
   }
 
   function pickErrors(errors, touchedValues){
+
     const listOfTouchedValues = pickOutermost(touchedValues);
 
     const valuesToPick = [
       ...listOfTouchedValues,
-      ...pseudoValues
+      ...arrayFrom(pseudoValues)
     ];
 
     return reduce(valuesToPick, (activeErrors, valuePath) => {
@@ -177,18 +179,18 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       };
     }
 
-    changesHandler(changes, options) {
-      return () => {
-        this.changeValues(changes, options);
-      };
-    }
-
     changeValue(valuePath, value, options = {}){
       invariant(!Array.isArray(valuePath),
         'Value path passed to changeValue was an array. If you want to change multiple values at once, use `changeValues` (pluralized) instead.'
       );
 
       this.changeValues([[valuePath, value]], options)
+    }
+
+    changesHandler(changes, options) {
+      return () => {
+        this.changeValues(changes, options);
+      };
     }
 
     changeValues(changes, options = {}) {
@@ -202,7 +204,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           if (options.validate === true) {
             return map(changes, ([valuePath]) => valuePath);
           } else {
-            return options.validate;
+            return arrayFrom(options.validate);
           }
         }();
 
@@ -298,7 +300,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
             return joiErrors;
           }, {});
 
-          this._callValidatorIfDefined({
+          this._callValidatorIfDefined(arrayFrom(validator), {
             ...nextState,
             errors,
             valuesWithDefaults
@@ -306,7 +308,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
         })
 
       } else {
-        this._callValidatorIfDefined({
+        this._callValidatorIfDefined(arrayFrom(validator), {
           ...nextState,
           errors: {},
           valuesWithDefaults
@@ -315,13 +317,33 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
     }
 
-    _callValidatorIfDefined({ values, errors, touchedValues, valuesWithDefaults, validateAllValues }, afterValidatorHasRun) {
+    _callValidatorIfDefined(validatorList, { values, errors, touchedValues, valuesWithDefaults, validateAllValues }, afterValidatorHasRun) {
 
-      if (validator) {
-        validator({
+      if (validatorList) {
+        const callback = function(){
+          if (validatorList.length > 1) {
+
+            return ({ values: nextValues, errors: nextErrors }) => {
+
+              this._callValidatorIfDefined(
+                drop(validatorList), {
+                  values: nextValues, errors: nextErrors,
+                  touchedValues, valuesWithDefaults, validateAllValues
+                }, afterValidatorHasRun
+              );
+            };
+
+          } else {
+            return afterValidatorHasRun;
+          }
+        }();
+
+        validatorList[0]({
           valuePaths: pickOutermost(touchedValues),
-          valuesWithDefaults, validateAllValues, values, errors, props: { ...this.props }
-        }, afterValidatorHasRun);
+          valuesWithDefaults, validateAllValues,
+          values, errors, props: { ...this.props }
+        }, callback);
+
       } else {
         afterValidatorHasRun({ values, errors });
       }
