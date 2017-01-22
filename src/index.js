@@ -7,8 +7,8 @@ import get from 'lodash.get';
 import drop from 'lodash.drop';
 
 import has from 'lodash.has';
-
 import isString from 'lodash.isstring';
+import isPlainObject from 'lodash.isplainobject';
 
 import reduce from 'lodash.reduce';
 import defaultsDeep from 'lodash.defaultsdeep';
@@ -33,6 +33,8 @@ const DEFAULT_STATE = {
   errors: {},
   values: {},
   touchedValues: {},
+  validatedValues: {},
+  changingValues: [],
 
   validateAllValues: false
 };
@@ -99,6 +101,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       this.validateAllHandler = this.validateAllHandler.bind(this);
 
       this.clear = this.clear.bind(this);
+      this.clearTouchedValues = this.clearTouchedValues.bind(this);
 
       this.state = { ...DEFAULT_STATE };
     }
@@ -125,17 +128,55 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           validateAll={ this.validateAll }
 
           clearValidationState={ this.clear }
+          clearValidationTouchedValues={ this.clearTouchedValues }
         />
       );
     }
 
+    omitDeep(target, valueToOmit){
+
+      if (valueToOmit) {
+        if (isPlainObject(target)) {
+
+          return reduce(target, (memo, value, key) => {
+
+            if (!isString(valueToOmit[key])) {
+              memo[key] = this.omitDeep(value, valueToOmit[key]);
+            }
+
+            return memo;
+          }, {});
+
+        } else if (Array.isArray(target)) {
+
+          return reduce(target, (memo, value, index) => {
+
+            if (!isString(valueToOmit[index])) {
+              memo.push(this.omitDeep(value, valueToOmit[index]));
+            }
+
+            return memo;
+          }, []);
+
+        } else {
+          return target;
+        }
+
+      } else {
+        return target;
+      }
+    }
+
+
     _getActiveErrors(){
-      const { errors, validateAllValues, touchedValues } = this.state;
+      const { errors, validateAllValues, touchedValues, validatedValues } = this.state;
+
+      const baseErrors = this.omitDeep(this.props.errors || {}, touchedValues);
 
       if (validateAllValues) {
-        return errors;
+        return defaultsDeep({}, errors, baseErrors);
       } else {
-        return pickErrors(errors, touchedValues);
+        return defaultsDeep(pickErrors(errors, validatedValues), baseErrors);
       }
     }
 
@@ -176,6 +217,13 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       });
     }
 
+    clearTouchedValues(){
+      this.setState({
+        touchedValues: {},
+        validateAll: false
+      });
+    }
+
     changeHandler(valuePath, options = {}) {
       return (event, value) => {
         const valueToUse = has(options, 'value') ? options.value : value;
@@ -204,7 +252,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
       if (options.validate) {
 
-        const valuePaths = function(){
+        const validatePaths = function(){
           if (options.validate === true) {
             return map(changes, ([valuePath]) => valuePath);
           } else {
@@ -212,7 +260,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           }
         }();
 
-        const nextState = this._newState({ valuePaths, changes });
+        const nextState = this._newState({ validatePaths, changes });
 
         this._validate(nextState, options.callback || emptyFunc);
 
@@ -224,65 +272,62 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
     }
 
-    _newState({ valuePaths, changes }) {
-      const { touchedValues, values } = this.state;
+    _newState({ validatePaths, changes }) {
+      const { validatedValues, touchedValues, values } = this.state;
 
-      const newValues = function(){
-        if (changes) {
-          const previousValues = deepClone(values);
+      const newValues = deepClone(values);
+      const newTouchedValues = deepClone(touchedValues);
+      const changingValues = [];
 
-          each(changes, ([path, value]) => {
-            set(previousValues, path, value);
-          });
+      if (changes) {
+        each(changes, ([path, value]) => {
+          set(newValues, path, value);
+          set(newTouchedValues, path, path);
+          changingValues.push(path);
+        });
+      }
 
-          return previousValues;
+      const newValidatedValues = function(){
+        if (validatePaths) {
+          const valuePathsList = arrayFrom(validatePaths);
 
+          return mergeTouchedValues(valuePathsList, validatedValues);
         } else {
-
-          return { ...values };
-
-        }
-      }();
-
-      const newTouchedValues = function(){
-        if (valuePaths) {
-          const valuePathsList = arrayFrom(valuePaths);
-
-          return mergeTouchedValues(valuePathsList, touchedValues);
-        } else {
-          return touchedValues;
+          return validatedValues;
         }
       }();
 
       return {
         ...this.state,
         values: newValues,
-        touchedValues: newTouchedValues
+        touchedValues: newTouchedValues,
+        validatedValues: newValidatedValues,
+        changingValues
       };
     }
 
-    validateAllHandler(validateAllValues = true, callback = emptyFunc) {
+    validateAllHandler(callback = emptyFunc) {
 
       return () => {
-        this.validateAll(validateAllValues, callback);
+        this.validateAll(callback);
       };
 
     }
 
-    validateAll(validateAllValues = true, callback) {
-      this._validate({ ...this.state, validateAllValues }, callback);
+    validateAll(callback) {
+      this._validate({ ...this.state, validateAllValues: true }, callback);
     }
 
-    validateHandler(valuePaths, callback = emptyFunc()) {
+    validateHandler(validatePaths, callback = emptyFunc()) {
 
       return () => {
-        this.validate(valuePaths, callback)
+        this.validate(validatePaths, callback)
       }
 
     }
 
-    validate(valuePaths, afterValidationCallback = emptyFunc) {
-      this._validate(this._newState({ valuePaths }), afterValidationCallback);
+    validate(validatePaths, afterValidationCallback = emptyFunc) {
+      this._validate(this._newState({ validatePaths }), afterValidationCallback);
     }
 
 
@@ -291,6 +336,14 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
         this._afterValidationHandler(nextState, afterValidationCallback);
 
       const valuesWithDefaults = unwrapObject(this._valuesWithDefaults(nextState));
+
+      const validatorOptions = {
+        ...nextState,
+        valuesWithDefaults,
+        touchedValues: pickOutermost(nextState.touchedValues),
+        validatedValues: pickOutermost(nextState.validatedValues),
+        props: { ...this.props }
+      };
 
       if (joiSchema) {
         Joi.validate(valuesWithDefaults, joiSchema, { abortEarly: false, ...joiOptions }, (joiError) => {
@@ -305,34 +358,29 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           }, {});
 
           this._callValidatorIfDefined(arrayFrom(validator), {
-            ...nextState,
-            errors,
-            valuesWithDefaults
+            ...validatorOptions, errors
           }, afterValidationHandler);
         })
 
       } else {
         this._callValidatorIfDefined(arrayFrom(validator), {
-          ...nextState,
-          errors: {},
-          valuesWithDefaults
+          ...validatorOptions, errors: {}
         }, afterValidationHandler);
       }
 
     }
 
-    _callValidatorIfDefined(validatorList, { values, errors, touchedValues, valuesWithDefaults, validateAllValues }, afterValidatorHasRun) {
+    _callValidatorIfDefined(validatorList, validatorOptions, afterValidatorHasRun) {
 
-      if (validatorList) {
+      if (validatorList.length > 0) {
         const callback = function(){
           if (validatorList.length > 1) {
 
-            return ({ values: nextValues, errors: nextErrors }) => {
+            return ({ values, errors }) => {
 
               this._callValidatorIfDefined(
                 drop(validatorList), {
-                  values: nextValues, errors: nextErrors,
-                  touchedValues, valuesWithDefaults, validateAllValues
+                  ...validatorOptions, values, errors
                 }, afterValidatorHasRun
               );
             };
@@ -342,15 +390,14 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           }
         }();
 
-        validatorList[0]({
-          valuePaths: pickOutermost(touchedValues),
-          valuesWithDefaults, validateAllValues,
-          values, errors, props: { ...this.props }
-        }, callback);
+        validatorList[0](validatorOptions, callback);
 
       } else {
+        const { values, errors } = validatorOptions;
+
         afterValidatorHasRun({ values, errors });
       }
+
     }
 
     _afterValidationHandler(nextState, afterValidationComplete) {
