@@ -9,9 +9,7 @@
 * Does not include Joi as a dependency to remain light weight, allow gradual integration into your projects and to remain environment agnostic - just point `react-joi-validation` at the version of Joi that is right for your project's environment and it will use it.
 * Transparently handles client and server data validations
 
-## Warning: Out of date documentation
 
-v1.0.0 has different behaviour than described below. Please use v0.0.8 until I have a chance to document v1.0.0 correctly.
 ## Usage
 
 ```javascript
@@ -73,14 +71,13 @@ npm install react-joi-validation --save
 
 If you are planning on using `react-joi-validations` with Joi, you also need to follow the installation instructions for the version and type of Joi you wish to use. [joi-browser](https://github.com/jeffbski/joi-browser) is recommended for web applications. 
 
-Once you have a version of Joi installed, just left `react-joi-validations` know about it somewhere near the entry point of your code (before any othes calls to `react-joi-validations`):
+Once you have a version of Joi installed, just let `react-joi-validations` know about it somewhere near the entry point of your code (before any other calls to `react-joi-validations`):
 
 ```javascript
-
-import ReactJoiValidations from 'react-joi-validations'
+import ReactJoiValidations from 'react-joi-validation'
 import Joi from 'joi-browser' // or whatever Joi library you are using
 
-ReactJoiValidations.setJoi(Joi)
+ReactJoiValidations.setJoi(Joi);
 ```
 
 
@@ -92,9 +89,23 @@ Joi is not listed as a peer dependency for `react-joi-validation` as there are m
 
 ## How it works
 
-`react-joi-validation` works by providing a higher order function that wraps any component you wish to validate - say a form. It maintains values in its own state and passes them down to your component as props, along with a number of functions you can use to update and validate those values as the user interacts with your component.
+`react-joi-validation` works by providing a higher order function that wraps any component you wish to validate. It maintains values in its own state and passes them down to your component as props, along with a number of functions you can use to update and validate those values as the user interacts with your component.
  
- It takes default values from each attribute from your components `defaultProps` object and also allows passing in props that override these defaults.
+ The validator component merges the values you define in your component's `defaultProps`, the values you pass the validator component's `props` and the values you set using change handlers when the user interacts with your UI.
+ 
+ It then runs these merged values through a Joi schema that you provide and/or one or more validator functions you define. The resultant error object is merged with errors passed to the validator components `props` (allowing you to validate with your server or some other external party) and passed down to your component.
+ 
+ ### Guiding concepts
+ 
+ * **Succinct and expressive syntax** - `react-joi-validation` removes the need in most cases for defining handlers for user events. You can do them inline for your UI at render time, or add a line to your existing event handler methods if you need custom logic or easy integration with your existing code.
+ * **Complete UI independence** - `react-joi-validation` wraps your component and provides change handlers and an error object. What you do with those errors and how you display them is entirely up to you.
+ * **Separation of change and validation events** - the validation of values is done separately to maintaining the changes to those values. Often you want to validate a user's input only after they have completed entering it. Because of this decoupling, you can even validate fields other than those that were just changed. This allows validating groups of values when the user has completed setting the final value.
+  * **Selective, explicit validation** - `react-joi-validation` makes validating each value explicit, so you can validate a user's input as they do it, rather than validating all fields before the user has even got to them.
+  * **Full validation flexibility** - you can chose to use Joi or your own validator functions or trigger events that pass errors in as `props`, making it easy to integrate with any existing project.
+  * **Easy integration with external validation** - in addition to the validation `react-joi-validation` performs, it also allows passing in errors from external sources such as errors from your server. It transparently merges them with the `react-joi-validation` errors.
+ * **Flexible default values** - it's possible to set defaults for values using either the component's `defaultProps` or the `props` to the validator component (or both). This makes it possible to set default values dynamically at runtime.  
+  
+  
 
 ## Higher Order Function API
 
@@ -202,6 +213,54 @@ validate(MyComponent, { validator: myValidatorFunction })
 
 This is useful for performing validation not possible with the Joi syntax. Please refer to the [validator function interface](#validator-function-interface) section for more information.
 
+#### Chaining validators
+
+You can also use more than one validator at a time by providing an array to `validators`. The validators are executed in the order that they appear in the array and the `values` and `errors` passed to the callback by each validator are given to the next one in the chain. The `values` and `errors` outpu by the final validator are saved in the validator component.
+
+```javascript
+validate(MyComponent, { validator: [ validator1, validator2 ] })
+```
+
+### Pseudovalues
+
+Sometimes it is convenient to have your validator place error messages on attributes of `errors` that do not correspond with any of the actual values being passed down. One example of this is a user must select at least one option from either of two lists and an error message doesn't really fit on either of the individual lists.
+ 
+You can achieve this using pseudovalues, which are like extra hooks to hang your error messages on. They do not have values or get passed down to the wrapped component, but they can place errors into the `errors` prop. They can also be the target of a validation action.
+
+`pseudoValues` accepts either a string or an array of strings, indicating the names of the pseudovalues you would like to use.
+
+```javascript
+
+function validateAtLeastOneProductOrService({ valuesWithDefaults, values, validateAllValues, validatedValues, errors }, callback){
+  const { products, services } = valuesWithDefaults;
+
+  if (validateAllValues || validatedValues.includes('billableItems')) {
+    if (products.length === 0 && services.length === 0) {
+      errors.billableItems = 'Must select at least one product or service';
+    }
+  }
+
+  callback({ values, errors });
+}
+
+validate(MyComponent, { validator: validateAtLeastOneProductOrService, pseudoValues: ['billableItems'] })
+
+// MyComponent.js
+
+// ...
+
+<FormError>
+  { errors.billableItems }
+</FormError>
+
+// ...
+
+<product onClick={ changeHandler('product', { value: id, validate: 'billableItems' }) }>
+  Product {id}
+</product>
+
+```
+
 ## Wrapped Component API
 
 When working with your component that is wrapped by `react-joi-validations`, two types of functions are provided to you: 
@@ -270,6 +329,47 @@ handleUsernameChange(event, newUsername){
   changeValue('username', newUsername)
 }
 ```
+
+### Changing multiple values at once
+
+#### changesHandler
+
+Similar to `changeHandler`, but accepts an array of path-value tuples that list the changes to be made.
+
+```javascript
+return(
+  <button onChange={changesHandler([['username', ''], ['password', '']])}   >
+    Clear
+  </button>
+)
+```
+
+`changesHandler` accepts the same options as `changeHandler`. If `validate: true` is used, all values listed in the array are validated.
+
+#### changeValues
+
+Similar to `changeValue`, but accepts an array of path-value tuples that list the changes to be made.
+
+```javascript
+render() {
+  return(
+    <div>
+      <button onChange={this.handleClearValues} >  
+        Clear
+      </button>
+    </div>
+  )
+}
+
+handleClearValues(event){
+  const { changeValue } = this.props;  
+  
+  // custom code here
+  changeValue([ ['username', ''], ['password', ''] ])
+}
+```
+
+`changeValues` accepts the same options as `changeValue`. If `validate: true` is used, all values listed in the array are validated.
 
 ### Accessing Errors
 
@@ -456,10 +556,17 @@ A custom validator function can be used with or instead of a Joi validation sche
   
 The function must accept two arguments: an object of options and a callback. The options object contains the following values:
 
-* `values` - an object of values that will replace the current state when the validation is complete. This is used both for inspecting the current values and can be mutated to replace them.
-* `errors` - an object of the errors output by the Joi validation, if also used (otherwise an empty object). This give the function the opportunity to see if Joi detected any invalid attributes and to override them by mutating the object.
-* `validateAll` - a boolean indicating whether the current validation operation is to validate all values. Useful for only running the custom validations when all values should be present.
-* `valuePaths` - an array of value paths that describes which values should be validated in the current validation operation. It is empty when `validateAll` is true, so the two should be used in conjunction. Useful for running custom validations only when particular values are being validated.
+**OK to modify or replace:**
+* `values` - an object of values that will replace the current state when the validation is complete. This is used both for inspecting the current values and can be mutated to replace them. It represents only those values set using one of the `changeXXX` methods. It does not include default values set using the validator component's props or the wrapped component's `defaultProps`.
+* `errors` - an object of the errors output by the Joi validation, if a `joiSchema` was provided to `react-joi-validation` (otherwise an empty object). This give the function the opportunity to see if Joi detected any invalid attributes and to override them by mutating the object.
+
+**Do not modify or replace:**
+
+* `valuesWithDefaults` - an object containing the deeply merged values stored in state with the default values set using props and the wrapped component's `defaultProps`. This is the actual object used internally for validating with the Joi schema, and passed down as props to the wrapped component.
+* `validateAll` - a boolean indicating whether all values should be validated (including those not listed in `validatedValues`). Useful for only running the custom validations when all values should be present.
+* `validatedValues` - an array of value paths (strings) that record which values should be validated. Should be used in conjunction with `validateAll` to decide if you should validate particular fields even when they are not listed in `validatedValues`.
+* `changingValues` - an array of value paths that indicate which values have changed since the last time the validator was called. This is useful for only modifying `values` when certain fields are modified.
+* `props` - the props passed to the validator component. This is useful when the `only` option is in effect, for using prop values outside the validation schema to validate values in it.
  
  
 The function **must** call the callback with an object containing two attributes:
@@ -467,10 +574,10 @@ The function **must** call the callback with an object containing two attributes
 * `errors`: the object of errors, which may be unchanged or mutated by the validator function
 
 ```javascript
-function validateSquareNumberOfImages({ values, validateAll, valuePaths, errors }, callback){
+function validateSquareNumberOfImages({ values, validateAll, validatedValues, errors }, callback){
   const { images } = values;
 
-  if (validateAll || includes(valuePaths, 'images')) {
+  if (validateAll || includes(validatedValues, 'images')) {
     if (isSquareNumber(images.length) ) {
       errors['images'] = 'Must select a square number of images';
     }
