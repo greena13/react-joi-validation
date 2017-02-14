@@ -95,7 +95,7 @@ Joi is not listed as a peer dependency for `react-joi-validation` as there are m
  
  It then runs these merged values through a Joi schema that you provide and/or one or more validator functions you define. The resultant error object is merged with errors passed to the validator components `props` (allowing you to validate with your server or some other external party) and passed down to your component.
  
- ### Guiding concepts
+### Guiding concepts
  
  * **Succinct and expressive syntax** - `react-joi-validation` removes the need in most cases for defining handlers for user events. You can do them inline for your UI at render time, or add a line to your existing event handler methods if you need custom logic or easy integration with your existing code.
  * **Complete UI independence** - `react-joi-validation` wraps your component and provides change handlers and an error object. What you do with those errors and how you display them is entirely up to you.
