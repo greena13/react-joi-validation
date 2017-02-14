@@ -46,9 +46,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
   function wrapObject(object){
     if (usingSingularValidationScope()) {
-      return {
-        [only]: object
-      };
+      return set({}, only, object);
     } else {
       return object;
     }
@@ -56,7 +54,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
   function unwrapObject(object){
     if (usingSingularValidationScope()) {
-      return object[only];
+      return get(object, only);
     } else {
       return object;
     }
