@@ -100,11 +100,10 @@ Joi is not listed as a peer dependency for `react-joi-validation` as there are m
  * **Succinct and expressive syntax** - `react-joi-validation` removes the need in most cases for defining handlers for user events. You can do them inline for your UI at render time, or add a line to your existing event handler methods if you need custom logic or easy integration with your existing code.
  * **Complete UI independence** - `react-joi-validation` wraps your component and provides change handlers and an error object. What you do with those errors and how you display them is entirely up to you.
  * **Separation of change and validation events** - the validation of values is done separately to maintaining the changes to those values. Often you want to validate a user's input only after they have completed entering it. Because of this decoupling, you can even validate fields other than those that were just changed. This allows validating groups of values when the user has completed setting the final value.
-  * **Selective, explicit validation** - `react-joi-validation` makes validating each value explicit, so you can validate a user's input as they do it, rather than validating all fields before the user has even got to them.
-  * **Full validation flexibility** - you can chose to use Joi or your own validator functions or trigger events that pass errors in as `props`, making it easy to integrate with any existing project.
-  * **Easy integration with external validation** - in addition to the validation `react-joi-validation` performs, it also allows passing in errors from external sources such as errors from your server. It transparently merges them with the `react-joi-validation` errors.
+ * **Selective, explicit validation** - `react-joi-validation` makes validating each value explicit, so you can validate a user's input as they do it, rather than validating all fields before the user has even got to them.
+ * **Full validation flexibility** - you can chose to use Joi or your own validator functions or trigger events that pass errors in as `props`, making it easy to integrate with any existing project.
+ * **Easy integration with external validation** - in addition to the validation `react-joi-validation` performs, it also allows passing in errors from external sources such as errors from your server. It transparently merges them with the `react-joi-validation` errors.
  * **Flexible default values** - it's possible to set defaults for values using either the component's `defaultProps` or the `props` to the validator component (or both). This makes it possible to set default values dynamically at runtime.  
-  
   
 
 ## Higher Order Function API
@@ -297,6 +296,7 @@ return(
 ```
 
 You can also validate a field other than the one you are modifying by providing it as a string instead of `true` to the `validate` option.
+
 ##### Setting value on render
 
 You can set the value a user interaction will have at render time using the `options.value` argument:
@@ -528,9 +528,25 @@ handleValidation(){
 
 ### Clearing the validation state
 
-When you want to pass responsibility for the data out of the component (say, to place it in your store, or to send to your server for validation) you will need to clear the validation component's state (including errors and values) so when the data is passed back in via `props` to the component after having come back from your server or been persisted to your store, it is not overridden by the validation component's state values.
+#### Clearing validation errors
 
-This can be done using the `clearValidationState` prop available to your wrapped component. It accepts no arguments and will clear the validation component's state, so you must only call it after you have copied your component's values somewhere else.
+It's possible to clear the validation errors for some or all of the data your component is managing. Calling `clearValidation` with no arguments will clear all errors. You can selectively clear validation errors for individual attributes by passing a path as a string or array of path strings. 
+
+```javascript
+handleValidation() {
+  const { clearValidation, overrideValidation } = this.props;  
+  
+  if (overrideValidation) {
+    clearValidation(); // or clearValidation('user.username')    
+  }
+}
+```
+
+#### Clearing validation errors and resetting values
+
+If you want to reset some or all attributes back to their default values (or the values  passed in as props) and clear the corresponding validation errors, it can be done using the `clearValidationAndResetValues`. Similar to `clearValidation`, it can be called with no arguments to clear all errors and values or with paths to selectively clear attributes and any corresponding validation errors.
+
+This is useful when you want to pass responsibility for the data out of the component (say, to place it in your store, or to send to your server for validation). You  need to clear the validation component's state so when the data is passed back in via `props` to the component after having come back from your server or been persisted to your store, the validation component's state values don't take precedence.
 
 ```javascript
 handleValidation(){
@@ -539,12 +555,12 @@ handleValidation(){
   // custom code here
   
   validateAll(() => {
-    const { errors, clearValidationState } = this.props;
+    const { errors, clearValidationAndResetValues } = this.props;
     
     if (!any(errors)) {
-      this.clearValidationState()
+      // send to your store or server      
       
-      // display preloader and wait for server to confirm values      
+      this.clearValidationAndResetValues()
     }
   });
 }
@@ -600,4 +616,12 @@ If you are creating a contribution and would like to run the tests whenever you 
 ```bash
 npm run watch-tests
 ```
+
+## Contributions
+
+All contributions are welcome and encouraged.
+
+## Similar libraries
+
+If `react-joi-validation` does not meet your needs for whatever reason, you may want to check out [react-validation-mixin](https://github.com/jurassix/react-validation-mixin). 
 
