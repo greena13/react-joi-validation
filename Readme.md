@@ -586,3 +586,18 @@ function validateSquareNumberOfImages({ values, validateAll, validatedValues, er
   callback({ values, errors });
 }
 ```
+
+## Running the test suite
+
+You can run the complete test suite using the following command:
+
+```bash
+npm run tests 
+```
+
+If you are creating a contribution and would like to run the tests whenever you save a file:
+
+```bash
+npm run watch-tests
+```
+
