@@ -48,7 +48,7 @@ function touchedAncestorPathSegments(target, pathSegments) {
   }
 }
 
-function mergeTouchedValues(newTouchedValuePaths, previouslyTouchedValues) {
+function mergeValidatedValuePaths(newTouchedValuePaths, previouslyTouchedValues) {
 
   return reduce(newTouchedValuePaths, (updatedTouchedValues, path)=>{
 
@@ -63,4 +63,4 @@ function mergeTouchedValues(newTouchedValuePaths, previouslyTouchedValues) {
   }, deepClone(previouslyTouchedValues));
 }
 
-export default mergeTouchedValues;
+export default mergeValidatedValuePaths;

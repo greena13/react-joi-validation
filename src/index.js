@@ -3,6 +3,7 @@
 import React, { PropTypes, Component } from 'react';
 
 import set from 'lodash.set';
+import unset from 'lodash.unset';
 import get from 'lodash.get';
 import drop from 'lodash.drop';
 
@@ -22,7 +23,7 @@ import emptyFunc from './utils/emptyFunc';
 import arrayFrom from './utils/arrayFrom';
 import pickDeep from './utils/pickDeep';
 import pickOutermost from './utils/pickOutermost';
-import mergeTouchedValues from './utils/mergeTouchedValues';
+import mergeValidatedValuePaths from './utils/mergeValidatedValuePaths';
 import valuesWithDefaultsAndExemptions from './utils/valuesWithDefaultsAndExemptions';
 
 import Wildcard from './constants/Wildcard';
@@ -98,7 +99,9 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       this.validateAll = this.validateAll.bind(this);
       this.validateAllHandler = this.validateAllHandler.bind(this);
 
-      this.clear = this.clear.bind(this);
+      this.clearValidation = this.clearValidation.bind(this);
+      this.clearValidationState = this.clearValidationState.bind(this);
+      this.clearValidationAndResetValues = this.clearValidationAndResetValues.bind(this);
       this.clearTouchedValues = this.clearTouchedValues.bind(this);
 
       this.state = { ...DEFAULT_STATE };
@@ -125,7 +128,9 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           validateAllHandler={ this.validateAllHandler }
           validateAll={ this.validateAll }
 
-          clearValidationState={ this.clear }
+          clearValidationState={ this.clearValidationState }
+          clearValidation={ this.clearValidation }
+          clearValidationAndResetValues={ this.clearValidationAndResetValues }
           clearValidationTouchedValues={ this.clearTouchedValues }
         />
       );
@@ -209,16 +214,74 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
     }
 
-    clear() {
-      this.setState({
-        ...DEFAULT_STATE
-      });
+    clearValidationState(paths){
+      console.warn(
+        'Deprecation Warning: clearValidationState is deprecated. Please use clearValidationAndResetValues() instead.'
+      );
+
+      this.clearValidationAndResetValues(paths);
     }
+
+    clearValidationAndResetValues(paths) {
+      if (paths) {
+        const { touchedValues, validatedValues, values } = this.state;
+
+        const pathList = arrayFrom(paths);
+        const newTouchedValues = deepClone(touchedValues);
+        const newValidatedValues = deepClone(validatedValues);
+        const newValues = deepClone(values);
+
+        each(pathList, (path) => {
+          unset(newTouchedValues, path);
+          unset(newValidatedValues, path);
+          unset(newValues, path);
+        });
+
+        this.setState({
+          touchedValues: newTouchedValues,
+          validatedValues: newValidatedValues,
+          values: newValues
+        });
+
+      } else {
+        this.setState({
+          ...DEFAULT_STATE
+        });
+      }
+    }
+
+    clearValidation(paths){
+
+      if (paths) {
+        const { validatedValues } = this.state;
+        const newValidatedValues = deepClone(validatedValues);
+
+        const pathList = arrayFrom(paths);
+
+        each(pathList, (path) => {
+          unset(newValidatedValues, path);
+        });
+
+        this.setState({
+          validatedValues: newValidatedValues,
+          validateAllValues: false
+        });
+
+      } else {
+
+        this.setState({
+          validatedValues: deepClone(DEFAULT_STATE.validatedValues),
+          validateAllValues: false
+        });
+
+      }
+    }
+
 
     clearTouchedValues(){
       this.setState({
         touchedValues: {},
-        validateAll: false
+        validateAllValues: false
       });
     }
 
@@ -254,7 +317,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           if (options.validate === true) {
             return map(changes, ([valuePath]) => valuePath);
           } else {
-            return arrayFrom(options.validate);
+            return options.validate;
           }
         }();
 
@@ -289,7 +352,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
         if (validatePaths) {
           const valuePathsList = arrayFrom(validatePaths);
 
-          return mergeTouchedValues(valuePathsList, validatedValues);
+          return mergeValidatedValuePaths(valuePathsList, validatedValues);
         } else {
           return validatedValues;
         }
@@ -327,7 +390,6 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     validate(validatePaths, afterValidationCallback = emptyFunc) {
       this._validate(this._newState({ validatePaths }), afterValidationCallback);
     }
-
 
     _validate(nextState, afterValidationCallback) {
       const afterValidationHandler =
@@ -370,8 +432,9 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
     _callValidatorIfDefined(validatorList, validatorOptions, afterValidatorHasRun) {
 
+
       if (validatorList.length > 0) {
-        const callback = function(){
+        const callback = (() => {
           if (validatorList.length > 1) {
 
             return ({ values, errors }) => {
@@ -386,7 +449,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           } else {
             return afterValidatorHasRun;
           }
-        }();
+        })();
 
         validatorList[0](validatorOptions, callback);
 

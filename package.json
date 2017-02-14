@@ -44,7 +44,8 @@
     "lodash.reduce": "^4.6.0",
     "lodash.set": "^4.3.2",
     "lodash.topath": "^4.5.2",
-    "lodash.uniq": "^4.5.0"
+    "lodash.uniq": "^4.5.0",
+    "lodash.unset": "^4.5.2"
   },
   "devDependencies": {
     "babel-cli": "^6.0.0",
