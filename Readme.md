@@ -579,8 +579,8 @@ The function must accept two arguments: an object of options and a callback. The
 **Do not modify or replace:**
 
 * `valuesWithDefaults` - an object containing the deeply merged values stored in state with the default values set using props and the wrapped component's `defaultProps`. This is the actual object used internally for validating with the Joi schema, and passed down as props to the wrapped component.
-* `validateAll` - a boolean indicating whether all values should be validated (including those not listed in `validatedValues`). Useful for only running the custom validations when all values should be present.
-* `validatedValues` - an array of value paths (strings) that record which values should be validated. Should be used in conjunction with `validateAll` to decide if you should validate particular fields even when they are not listed in `validatedValues`.
+* `validateAllValues` - a boolean indicating whether all values should be validated (including those not listed in `validatedValues`). Useful for only running the custom validations when all values should be present.
+* `validatedValues` - an array of value paths (strings) that record which values should be validated. Should be used in conjunction with `validateAllValues` to decide if you should validate particular fields even when they are not listed in `validatedValues`.
 * `changingValues` - an array of value paths that indicate which values have changed since the last time the validator was called. This is useful for only modifying `values` when certain fields are modified.
 * `props` - the props passed to the validator component. This is useful when the `only` option is in effect, for using prop values outside the validation schema to validate values in it.
  
@@ -590,10 +590,10 @@ The function **must** call the callback with an object containing two attributes
 * `errors`: the object of errors, which may be unchanged or mutated by the validator function
 
 ```javascript
-function validateSquareNumberOfImages({ values, validateAll, validatedValues, errors }, callback){
+function validateSquareNumberOfImages({ values, validateAllValues, validatedValues, errors }, callback){
   const { images } = values;
 
-  if (validateAll || includes(validatedValues, 'images')) {
+  if (validateAllValues || includes(validatedValues, 'images')) {
     if (isSquareNumber(images.length) ) {
       errors['images'] = 'Must select a square number of images';
     }
