@@ -40,7 +40,7 @@ const DEFAULT_STATE = {
   validateAllValues: false
 };
 
-const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validator, only, pseudoValues = [] }) => {
+const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validator, only, pseudoValues = [], externalErrorsPath }) => {
   function usingSingularValidationScope(){
     return isString(only);
   }
@@ -174,7 +174,8 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     _getActiveErrors(){
       const { errors, validateAllValues, touchedValues, validatedValues } = this.state;
 
-      const baseErrors = this.omitDeep(this.props.errors || {}, touchedValues);
+      let externalErrors = get(this.props, externalErrorsPath || 'errors', {});
+      const baseErrors = this.omitDeep(externalErrors, touchedValues);
 
       if (validateAllValues) {
         return defaultsDeep({}, errors, baseErrors);
