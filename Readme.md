@@ -260,6 +260,22 @@ validate(MyComponent, { validator: validateAtLeastOneProductOrService, pseudoVal
 
 ```
 
+### Setting errors, externally
+
+By default, `react-joi-validation` will merge any errors passed on the props `errors` with those resultant from validating the user input. This is useful for displaying validation errors from your server, or outside of your component. When the value is changed, it is marked as "touched" and any corresponding external errors are no longer present on the `errors` prop passed down to your component. 
+
+This means you can validate data externally and display the error until the user first changes its value (and the external error becomes stale). It then falls to local validation again before you to pass it back up to you server or external validation module for re-evaluating.
+
+The prop used for external errors can be set using the `externalErrorsPath` option. This does **not** change the prop passed down to your component. That is always `this.props.errors`.
+
+
+```javascript
+ const MyValidatedComponent = validate(MyComponent, { joiSchema: schema, externalErrorsPath: 'response.errors'})
+ 
+ <MyValidatedComponent response={ { errors } } />
+ 
+```
+
 ## Wrapped Component API
 
 When working with your component that is wrapped by `react-joi-validations`, two types of functions are provided to you: 
