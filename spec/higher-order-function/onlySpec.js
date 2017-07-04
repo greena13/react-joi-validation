@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import validate from '../../index'
 import Joi from 'joi-browser';
 
@@ -11,7 +11,7 @@ import WrappedComponent from '../WrappedComponent';
 
 validate.setJoi(Joi);
 
-describe('higher order function when the only option', function(){
+describe('higher order function when the only option', () => {
   const usernameError = { username: 'must be a string' };
   const passwordError = { password: 'must be a string' };
   const passwordConfirmationError = { passwordConfirmation: 'is required' };
@@ -23,7 +23,7 @@ describe('higher order function when the only option', function(){
   };
 
   beforeEach(function() {
-    this.oldDefaultProps =  WrappedComponent.defaultProps;
+    this.oldDefaultProps = WrappedComponent.defaultProps;
 
     this.refreshComponentState = refreshComponentState.bind(this);
     this.renderer = TestUtils.createRenderer();
@@ -36,7 +36,7 @@ describe('higher order function when the only option', function(){
     WrappedComponent.defaultProps = this.oldDefaultProps;
   });
 
-  describe('is not provided', function(){
+  describe('is not provided', () => {
     const ValidatedComponent = validate(WrappedComponent, { joiSchema });
 
     it('then correctly sets values from defaultValues', function(){
@@ -57,7 +57,7 @@ describe('higher order function when the only option', function(){
         password: 'password1'
       };
 
-      this.renderer.render(<ValidatedComponent username='user2'/>);
+      this.renderer.render(<ValidatedComponent username="user2"/>);
       this.refreshComponentState();
 
       this.expectComponentToHaveProps({ username: 'user2', password: 'password1' });
@@ -69,7 +69,7 @@ describe('higher order function when the only option', function(){
         password: 'password1'
       };
 
-      this.renderer.render(<ValidatedComponent username='user2'/>);
+      this.renderer.render(<ValidatedComponent username="user2"/>);
 
       this.refreshComponentState();
       this.component.props.changeValue('username', 'user3');
@@ -190,7 +190,7 @@ describe('higher order function when the only option', function(){
 
   });
 
-  describe('is a string and there are no other props', function(){
+  describe('is a string and there are no other props', () => {
     const ValidatedComponent = validate(WrappedComponent, { joiSchema, only: 'user' });
 
     it('then correctly sets values from defaultValues', function(){
@@ -234,12 +234,12 @@ describe('higher order function when the only option', function(){
 
       this.refreshComponentState();
 
-      this.expectComponentToHaveProps({ user: { username: 'user3', password: 'password1' }});
+      this.expectComponentToHaveProps({ user: { username: 'user3', password: 'password1' } });
 
       this.component.props.clearValidationAndResetValues();
 
       this.refreshComponentState();
-      this.expectComponentToHaveProps({ user: { username: 'user2', password: 'password1' }});
+      this.expectComponentToHaveProps({ user: { username: 'user2', password: 'password1' } });
     });
 
     it('then correctly sets errors', function(){
@@ -350,7 +350,7 @@ describe('higher order function when the only option', function(){
 
   });
 
-  describe('is a string and there are other props not being validated', function(){
+  describe('is a string and there are other props not being validated', () => {
     const ValidatedComponent = validate(WrappedComponent, { joiSchema, only: 'user' });
 
     it('then correctly sets values from defaultValues', function(){
@@ -358,7 +358,7 @@ describe('higher order function when the only option', function(){
         user: { username: 'user1' }, address: { city: '' }
       };
 
-      this.renderer.render(<ValidatedComponent  />);
+      this.renderer.render(<ValidatedComponent />);
 
       this.refreshComponentState();
 
@@ -541,7 +541,7 @@ describe('higher order function when the only option', function(){
 
   });
 
-  describe('is a string containing a complicated path', function(){
+  describe('is a string containing a complicated path', () => {
     const ValidatedComponent = validate(WrappedComponent, { joiSchema, only: 'user.details' });
 
     beforeEach(function() {
@@ -709,7 +709,7 @@ describe('higher order function when the only option', function(){
 
   });
 
-  describe('is an array with one element', function(){
+  describe('is an array with one element', () => {
     const ValidatedComponent = validate(WrappedComponent, { joiSchema: { user: joiSchema }, only: ['user'] });
 
     beforeEach(function() {
@@ -761,12 +761,12 @@ describe('higher order function when the only option', function(){
 
       this.refreshComponentState();
 
-      this.expectComponentToHaveProps({ user: { username: 'user3', password: 'password1' }});
+      this.expectComponentToHaveProps({ user: { username: 'user3', password: 'password1' } });
 
       this.component.props.clearValidationAndResetValues();
 
       this.refreshComponentState();
-      this.expectComponentToHaveProps({ user: { username: 'user2', password: 'password1' }});
+      this.expectComponentToHaveProps({ user: { username: 'user2', password: 'password1' } });
     });
 
     it('then correctly sets errors', function(){
@@ -877,7 +877,7 @@ describe('higher order function when the only option', function(){
 
   });
 
-  describe('is an array with multiple paths', function(){
+  describe('is an array with multiple paths', () => {
     const fullSchema = {
       user: joiSchema,
       profile: {
@@ -958,7 +958,7 @@ describe('higher order function when the only option', function(){
 
       this.expectComponentToHaveErrors({
           user: { username: 'already taken' },
-          profile: { age: 'too young'}
+          profile: { age: 'too young' }
         }
       );
 
@@ -977,7 +977,7 @@ describe('higher order function when the only option', function(){
 
       this.expectComponentToHaveErrors({
           user: { username: 'already taken' },
-          profile: { age: 'too young'}
+          profile: { age: 'too young' }
         }
       );
     });

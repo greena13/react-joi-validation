@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import validate from '../../index';
 
 import Joi from 'joi-browser';
@@ -10,7 +10,7 @@ import WrappedComponent from '../WrappedComponent';
 
 validate.setJoi(Joi);
 
-describe('clearValidationAndResetValues', function(){
+describe('clearValidationAndResetValues', () => {
   const joiSchema = {
     a: Joi.string().required(),
     b: Joi.string().required()
@@ -18,7 +18,7 @@ describe('clearValidationAndResetValues', function(){
 
   beforeEach(function () {
     this.refreshComponentState = refreshComponentState.bind(this);
-    this.renderer = TestUtils.createRenderer();
+    this.renderer = new ShallowRenderer();
 
     this.ValidatedComponent = validate(WrappedComponent, { joiSchema });
 
@@ -26,7 +26,7 @@ describe('clearValidationAndResetValues', function(){
     this.refreshComponentState();
   });
 
-  describe('when called with no arguments', function(){
+  describe('when called with no arguments', () => {
     it('then clears all errors and values', function(){
       this.component.props.changeValue('a', 'a');
       this.component.props.validateAll();
@@ -46,7 +46,7 @@ describe('clearValidationAndResetValues', function(){
 
   });
 
-  describe('when called with a string', function(){
+  describe('when called with a string', () => {
     it('then clears errors and values for the attribute mentioned in that string', function(){
       this.component.props.changeValue('a', 'a');
       this.component.props.validateAll();
@@ -66,7 +66,7 @@ describe('clearValidationAndResetValues', function(){
 
   });
 
-  describe('when called with an array string', function(){
+  describe('when called with an array string', () => {
     it('then clears errors and values for the attributes mentioned in the array', function(){
       this.component.props.changeValue('a', 'a');
       this.component.props.validateAll();
