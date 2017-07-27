@@ -1,6 +1,7 @@
 'use strict';
 
-import React, { PropTypes, Component } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 import set from 'lodash.set';
 import unset from 'lodash.unset';
@@ -174,7 +175,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     _getActiveErrors(){
       const { errors, validateAllValues, touchedValues, validatedValues } = this.state;
 
-      let externalErrors = get(this.props, externalErrorsPath || 'errors', {});
+      const externalErrors = get(this.props, externalErrorsPath || 'errors', {});
       const baseErrors = this.omitDeep(externalErrors, touchedValues);
 
       if (validateAllValues) {

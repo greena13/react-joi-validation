@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import validate from '../../index'
 import Joi from 'joi-browser';
 import each from 'lodash.foreach';
@@ -14,10 +14,10 @@ import WrappedComponent from '../WrappedComponent';
 
 validate.setJoi(Joi);
 
-describe('higher order function when the validator option', function(){
+describe('higher order function when the validator option', () => {
 
   beforeEach(function() {
-    this.oldDefaultProps =  WrappedComponent.defaultProps;
+    this.oldDefaultProps = WrappedComponent.defaultProps;
 
     this.refreshComponentState = refreshComponentState.bind(this);
     this.renderer = TestUtils.createRenderer();
@@ -33,14 +33,14 @@ describe('higher order function when the validator option', function(){
     WrappedComponent.defaultProps = this.oldDefaultProps;
   });
 
-  describe('is a single function', function(){
+  describe('is a single function', () => {
     beforeEach(function(){
       this.validator = function({ values, errors }, callback) {
         callback({ values, errors });
       };
     });
 
-    describe('and the joiSchema option is specified', function(){
+    describe('and the joiSchema option is specified', () => {
       const joiSchema = {
         username: Joi.string().required(),
         password: Joi.string().required(),
@@ -65,12 +65,12 @@ describe('higher order function when the validator option', function(){
       });
 
       it('then gets called when validating', function(){
-        this.expectToBeCalledWhenValidating(this.validator, { errors: joiErrors});
+        this.expectToBeCalledWhenValidating(this.validator, { errors: joiErrors });
       });
 
      });
 
-    describe('and the only option is not specified', function(){
+    describe('and the only option is not specified', () => {
       beforeEach(function() {
 
         spyOn(this, 'validator').and.callThrough();
@@ -88,7 +88,7 @@ describe('higher order function when the validator option', function(){
 
      });
 
-    describe('and the only option is a string', function(){
+    describe('and the only option is a string', () => {
       beforeEach(function() {
 
         spyOn(this, 'validator').and.callThrough();
@@ -106,7 +106,7 @@ describe('higher order function when the validator option', function(){
 
      });
 
-    describe('and the only option is any array', function(){
+    describe('and the only option is any array', () => {
       beforeEach(function() {
 
         spyOn(this, 'validator').and.callThrough();
@@ -125,7 +125,7 @@ describe('higher order function when the validator option', function(){
      });
   });
 
-  describe('is a single function and the joiSchema option is specified and the validator changes a Joi error', function(){
+  describe('is a single function and the joiSchema option is specified and the validator changes a Joi error', () => {
     const joiSchema = {
       username: Joi.string().required()
     };
@@ -165,19 +165,19 @@ describe('higher order function when the validator option', function(){
 
   });
 
-  describe('is an array of functions', function(){
+  describe('is an array of functions', () => {
     beforeEach(function(){
-      this.validator1 = function({ values, errors}, callback) {
+      this.validator1 = function({ values, errors }, callback) {
         callback({ values, errors });
       };
 
-      this.validator2 = function({ values, errors}, callback) {
+      this.validator2 = function({ values, errors }, callback) {
         callback({ values, errors });
       };
 
     });
 
-    describe('and the joiSchema option is specified', function(){
+    describe('and the joiSchema option is specified', () => {
       const joiSchema = {
         username: Joi.string().required(),
         password: Joi.string().required(),
@@ -208,7 +208,7 @@ describe('higher order function when the validator option', function(){
 
     });
 
-    describe('and the only option is not specified', function(){
+    describe('and the only option is not specified', () => {
       beforeEach(function() {
 
         spyOn(this, 'validator1').and.callThrough();
@@ -227,7 +227,7 @@ describe('higher order function when the validator option', function(){
 
      });
 
-    describe('and the only option is a string', function(){
+    describe('and the only option is a string', () => {
       beforeEach(function() {
 
         spyOn(this, 'validator1').and.callThrough();
@@ -246,7 +246,7 @@ describe('higher order function when the validator option', function(){
 
      });
 
-    describe('and the only option is any array', function(){
+    describe('and the only option is any array', () => {
       beforeEach(function() {
 
         spyOn(this, 'validator1').and.callThrough();
@@ -265,9 +265,9 @@ describe('higher order function when the validator option', function(){
 
      });
 
-    describe('and a validators changes values and errors', function(){
+    describe('and a validators changes values and errors', () => {
       beforeEach(function() {
-        this.validator1 = function({ values, errors}, callback) {
+        this.validator1 = function({ values, errors }, callback) {
           callback({
             values: { ...values, username: '******' },
             errors: { ...errors, username: 'contains profanity'
@@ -275,7 +275,7 @@ describe('higher order function when the validator option', function(){
           });
         };
 
-        this.validator2 = function({ values, errors}, callback) {
+        this.validator2 = function({ values, errors }, callback) {
           callback({ values, errors });
         };
 
@@ -365,7 +365,7 @@ function adaptObject(obj, nestedUnder) {
   }
 }
 
-function expectToBeCalledWhenValidating(validators, { nestedUnder, errors } = { errors: {}}) {
+function expectToBeCalledWhenValidating(validators, { nestedUnder, errors } = { errors: {} }) {
   const validatorList = [].concat(validators);
 
   this.renderer.render(<this.ValidatedComponent />);

@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import validate from '../../index';
 import each from 'lodash.foreach';
 
@@ -11,16 +11,16 @@ import WrappedComponent from '../WrappedComponent';
 
 validate.setJoi(Joi);
 
-describe('changeValue', function(){
+describe('changeValue', () => {
   const joiSchema = {
     a: Joi.string().required()
   };
 
   beforeEach(function () {
-    this.oldDefaultProps =  WrappedComponent.defaultProps;
+    this.oldDefaultProps = WrappedComponent.defaultProps;
 
     this.refreshComponentState = refreshComponentState.bind(this);
-    this.renderer = TestUtils.createRenderer();
+    this.renderer = new ShallowRenderer();
 
     this.ValidatedComponent = validate(WrappedComponent, { joiSchema });
 
@@ -32,10 +32,10 @@ describe('changeValue', function(){
     WrappedComponent.defaultProps = this.oldDefaultProps;
   });
 
-  describe('when passed a attribute name and value', function(){
+  describe('when passed a attribute name and value', () => {
     it('then updates that attribute with the new value', function(){
 
-      const values = [ undefined, null, 0, 23, 'value', [1,2,3], [{ a: 'a', b: 'b'}, { a: 'c', b: 'd' }], { a: 'a', b: 'b' } ];
+      const values = [ undefined, null, 0, 23, 'value', [1, 2, 3], [{ a: 'a', b: 'b' }, { a: 'c', b: 'd' }], { a: 'a', b: 'b' } ];
 
       each(values, (value) => {
         this.component.props.changeValue('a', value);
@@ -47,22 +47,22 @@ describe('changeValue', function(){
     });
    });
 
-  describe('when passed a path', function(){
+  describe('when passed a path', () => {
     it('then updates the value at that path with the new value', function(){
-      this.component.props.changeValue('a.b', { c: 'c'});
+      this.component.props.changeValue('a.b', { c: 'c' });
 
       this.refreshComponentState();
       expect(this.component.props.a.b.c).toEqual('c');
 
-      this.component.props.changeValue('a.b.c', [0,1,2,3]);
+      this.component.props.changeValue('a.b.c', [0, 1, 2, 3]);
 
       this.refreshComponentState();
-      expect(this.component.props.a.b.c).toEqual([0,1,2,3]);
+      expect(this.component.props.a.b.c).toEqual([0, 1, 2, 3]);
 
       this.component.props.changeValue('a.b.c[2]', 4);
 
       this.refreshComponentState();
-      expect(this.component.props.a.b.c).toEqual([0,1,4,3]);
+      expect(this.component.props.a.b.c).toEqual([0, 1, 4, 3]);
 
       this.component.props.changeValue('a.b.c[0]', { d: 'd' });
 
@@ -76,7 +76,7 @@ describe('changeValue', function(){
     });
    });
 
-  describe('when no validate option is provided', function(){
+  describe('when no validate option is provided', () => {
     it('then does not validate the new value', function(){
       this.component.props.changeValue('a', null);
 
@@ -87,7 +87,7 @@ describe('changeValue', function(){
     });
    });
 
-  describe('when the validate option is true', function(){
+  describe('when the validate option is true', () => {
     it('then it validates the value that is changing', function(){
       this.component.props.changeValue('a', null, { validate: true });
 
@@ -98,7 +98,7 @@ describe('changeValue', function(){
     });
    });
 
-  describe('when the validate option is false', function(){
+  describe('when the validate option is false', () => {
     it('then does not validate the new value', function(){
       this.component.props.changeValue('a', null, { validate: false });
 
@@ -109,7 +109,7 @@ describe('changeValue', function(){
     });
    });
 
-  describe('when the validate option is a string', function(){
+  describe('when the validate option is a string', () => {
     it('then it validates the attribute mentioned in the string', function(){
       this.component.props.changeValue('b', null, { validate: 'a' });
 
@@ -122,7 +122,7 @@ describe('changeValue', function(){
     });
    });
 
-  describe('when the validate option is an array', function(){
+  describe('when the validate option is an array', () => {
     it('then it validates each attribute mentioned in the array', function(){
       this.component.props.changeValue('b', null, { validate: ['a'] });
 
@@ -135,7 +135,7 @@ describe('changeValue', function(){
     });
    });
 
-  describe('when the callback option is a function and the value is not validated', function(){
+  describe('when the callback option is a function and the value is not validated', () => {
     it('then it does not call the callback', function(){
       this.callback = function() { };
 
@@ -147,7 +147,7 @@ describe('changeValue', function(){
     });
    });
 
-  describe('when the callback option is a function and the value is validated', function(){
+  describe('when the callback option is a function and the value is validated', () => {
     it('then it dose call the callback', function(){
       this.callback = function() { };
 

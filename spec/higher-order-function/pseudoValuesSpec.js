@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import validate from '../../index'
 import Joi from 'joi-browser';
 
@@ -9,7 +9,7 @@ import WrappedComponent from '../WrappedComponent';
 
 validate.setJoi(Joi);
 
-describe('higher order function when the pseudoValues option', function(){
+describe('higher order function when the pseudoValues option', () => {
 
   beforeEach(function() {
     this.refreshComponentState = refreshComponentState.bind(this);
@@ -20,9 +20,9 @@ describe('higher order function when the pseudoValues option', function(){
     };
   });
 
-  describe('is not specified', function(){
+  describe('is not specified', () => {
 
-    describe('and a validator places an error on attribute not present in the object', function(){
+    describe('and a validator places an error on attribute not present in the object', () => {
 
       beforeEach(function () {
         this.ValidatedComponent = validate(WrappedComponent, { validator: this.validator });
@@ -41,9 +41,9 @@ describe('higher order function when the pseudoValues option', function(){
      });
   });
 
-  describe('is a string', function(){
+  describe('is a string', () => {
 
-    describe('and a validator places an error on attribute not present in the object', function(){
+    describe('and a validator places an error on attribute not present in the object', () => {
       beforeEach(function () {
         this.ValidatedComponent = validate(WrappedComponent, { pseudoValues: 'starSign', validator: this.validator });
 
@@ -63,9 +63,9 @@ describe('higher order function when the pseudoValues option', function(){
 
   });
 
-  describe('is an array', function(){
+  describe('is an array', () => {
 
-    describe('and a validator places an error on attribute not present in the object', function(){
+    describe('and a validator places an error on attribute not present in the object', () => {
       beforeEach(function () {
         this.ValidatedComponent = validate(WrappedComponent, { pseudoValues: ['starSign'], validator: this.validator });
 
@@ -86,4 +86,3 @@ describe('higher order function when the pseudoValues option', function(){
   });
 
  });
-
