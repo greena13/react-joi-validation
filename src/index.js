@@ -289,7 +289,31 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
     changeHandler(valuePath, options = {}) {
       return (event, value) => {
-        const valueToUse = has(options, 'value') ? options.value : value;
+
+        const valueToUse = function(){
+          if (has(options, 'value')) {
+            /**
+             * Allow setting a fixed value at the time of binding the change
+             * handler and ignore whatever value is passed when the handler
+             * is called
+             */
+            return options.value;
+          } else {
+            /**
+             * Inspect the callback arguments when the handler is called
+             */
+            const eventTargetValue = get(event, 'target.value');
+
+            if (eventTargetValue) {
+              // Use value from event object
+              return eventTargetValue;
+            } else {
+              // Use value provided as second argument
+              return value;
+            }
+          }
+        }();
+
         this.changeValue(valuePath, valueToUse, options);
       };
     }
