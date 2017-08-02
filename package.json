@@ -48,7 +48,8 @@
     "lodash.set": "^4.3.2",
     "lodash.topath": "^4.5.2",
     "lodash.uniq": "^4.5.0",
-    "lodash.unset": "^4.5.2"
+    "lodash.unset": "^4.5.2",
+    "prop-types": "^15.5.10"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -64,7 +65,6 @@
     "joi-browser": "^10.0.6",
     "lodash.omit": "^4.5.0",
     "nodemon": "^1.11.0",
-    "prop-types": "^15.5.10",
     "react": "^15.6.1",
     "react-addons-test-utils": "^15.6.0",
     "react-core": "^0.0.0",
