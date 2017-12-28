@@ -190,7 +190,21 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       if (only) {
         const validateableFields = arrayFrom(only);
 
-        const propValues = pickDeep(this.props, validateableFields);
+        const propValues = reduce(validateableFields, (memo, path) => {
+          const pathSegments = path.split(/[.[]/);
+          /**
+           * When using a complex or nested path for the 'only' option, we need
+           * to copy the root object - not just the leaf node - to ensure attributes
+           * in that root object that are not being validated, aren't omitted when
+           * it comes time to (deeply) merge in the validated values
+           */
+          const pathRoot = pathSegments.length > 1 ? pathSegments[0] : path;
+
+          const sourceValue = get(this.props, pathRoot);
+          set(memo, pathRoot, sourceValue);
+
+          return memo;
+        }, {});
 
         const defaultValues = pickDeep(
           ValidatedComponent.defaultProps, validateableFields

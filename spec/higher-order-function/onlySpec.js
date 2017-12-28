@@ -387,6 +387,23 @@ describe('higher order function when the only option', () => {
       });
     });
 
+    it('then correctly passes down other props that don\'t have a default value', function(){
+      WrappedComponent.defaultProps = {
+        user: {
+          username: 'user1',
+          password: 'password1'
+        },
+      };
+
+      this.renderer.render(<ValidatedComponent user={{ username: 'user2' }} address={ { city: 'New York City' } }/>);
+      this.refreshComponentState();
+
+      this.expectComponentToHaveProps({
+        user: { username: 'user2', password: 'password1' },
+        address: { city: 'New York City' }
+      });
+    });
+
     it('then correctly overrides default values', function(){
       WrappedComponent.defaultProps = {
         user: {
@@ -554,51 +571,101 @@ describe('higher order function when the only option', () => {
 
     it('then correctly sets values from defaultValues', function(){
       WrappedComponent.defaultProps = {
-        user: { details: { username: 'user1' } }
+        user: {
+          details: { username: 'user1' },
+          friendIds: [],
+        },
+        day: 'Monday'
       };
 
       this.renderer.render(<ValidatedComponent />);
 
       this.refreshComponentState();
 
-      this.expectComponentToHaveProps({ user: { details: { username: 'user1' } } });
+      this.expectComponentToHaveProps({
+        user: {
+          details: { username: 'user1' },
+          /**
+           * Don't include friendIds as it's not managed by react-joi-validation
+           * and as React itself doesn't merge nested default prop values into those
+           * that are passed to the component, we don't want to change or undermine
+           * this behaviour.
+           */
+        },
+        day: 'Monday',
+      });
     });
 
     it('then correctly sets values from props', function(){
       WrappedComponent.defaultProps = {
-        user: { details: {
-          username: 'user1',
-          password: 'password1'
-        } }
+        user: {
+          details: {
+            username: 'user1',
+            password: 'password1'
+          }
+        }
       };
 
-      this.renderer.render(<ValidatedComponent user={ { details: { username: 'user2' } } }/>);
+      this.renderer.render(
+        <ValidatedComponent
+          user={ { details: { username: 'user2' }, friendIds: [1] } }
+          year={ 2020 }
+        />
+      );
+
       this.refreshComponentState();
 
-      this.expectComponentToHaveProps({ user: { details: { username: 'user2', password: 'password1' } } });
+      this.expectComponentToHaveProps({
+        user: {
+          details: { username: 'user2', password: 'password1' },
+          friendIds: [1],
+        },
+        year: 2020,
+      });
     });
 
     it('then correctly overrides default values', function(){
       WrappedComponent.defaultProps = {
-        user: { details: {
-          username: 'user1',
-          password: 'password1'
-        } }
+        user: {
+          details: {
+            username: 'user1',
+            password: 'password1'
+          },
+          friendIds: [],
+        },
+        day: 'Monday'
       };
 
-      this.renderer.render(<ValidatedComponent user={ { details: { username: 'user2' } } } />);
+      this.renderer.render(
+        <ValidatedComponent
+          user={ { details: { username: 'user2' }, friendIds: [1] } }
+          day='Tuesday'
+        />);
 
       this.refreshComponentState();
       this.component.props.changeValue('username', 'user3');
 
       this.refreshComponentState();
 
-      this.expectComponentToHaveProps({ user: { details: { username: 'user3', password: 'password1' } } });
+      this.expectComponentToHaveProps({
+        user: {
+          details: { username: 'user3', password: 'password1' },
+          friendIds: [1]
+        },
+        day: 'Tuesday'
+      });
 
       this.component.props.clearValidationAndResetValues();
 
       this.refreshComponentState();
-      this.expectComponentToHaveProps({ user: { details: { username: 'user2', password: 'password1' } } });
+
+      this.expectComponentToHaveProps({
+        user: {
+          details: { username: 'user2', password: 'password1' },
+          friendIds: [1],
+        },
+        day: 'Tuesday'
+      });
     });
 
     it('then correctly sets errors', function(){
