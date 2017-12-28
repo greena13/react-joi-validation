@@ -22,33 +22,33 @@ var schema = Joi.object().keys({
 
 class MyComponent extends Component {
   render() {
-    const { 
-      user: { username, password }, 
-      errors, changeHandler, validateHandler 
+    const {
+      user: { username, password },
+      errors, changeHandler, validateHandler
     } = this.props;
-    
+
     return(
       <div >
-        <input type="text" 
-          value={username} 
-          onChange={ changeHandler('username') } 
-          onBlur={ validateHandler('username') } 
-        />   
-        
+        <input type="text"
+          value={username}
+          onChange={ changeHandler('username') }
+          onBlur={ validateHandler('username') }
+        />
+
         <span className={style.error}> { errors.username } </span>
-             
-        <input type="password" 
-          value={password} 
-          onChange={ changeHandler('password') } 
-          onBlur={ validateHandler('password') } 
-        />        
-        
+
+        <input type="password"
+          value={password}
+          onChange={ changeHandler('password') }
+          onBlur={ validateHandler('password') }
+        />
+
         <span className={style.error}> { errors.password } </span>
-        
+
         <input type="Submit" value="Sign In" />
-      </div>      
+      </div>
     );
-  }  
+  }
 }
 
 MyComponent.defaultProps = {
@@ -69,7 +69,7 @@ validate(MyComponent, validationOptions)
 npm install react-joi-validation --save
 ```
 
-If you are planning on using `react-joi-validations` with Joi, you also need to follow the installation instructions for the version and type of Joi you wish to use. [joi-browser](https://github.com/jeffbski/joi-browser) is recommended for web applications. 
+If you are planning on using `react-joi-validations` with Joi, you also need to follow the installation instructions for the version and type of Joi you wish to use. [joi-browser](https://github.com/jeffbski/joi-browser) is recommended for web applications.
 
 Once you have a version of Joi installed, just let `react-joi-validations` know about it somewhere near the entry point of your code (before any other calls to `react-joi-validations`):
 
@@ -83,28 +83,28 @@ ReactJoiValidations.setJoi(Joi);
 
 ## What version of Joi should I use?
 
-Joi is not listed as a peer dependency for `react-joi-validation` as there are many flavours and forks of Joi out there that provide similar behaviour and APIs in different environments and `react-joi-validation` should work with any of them. In fact, you do not need to use Joi at all if you do not want to. 
+Joi is not listed as a peer dependency for `react-joi-validation` as there are many flavours and forks of Joi out there that provide similar behaviour and APIs in different environments and `react-joi-validation` should work with any of them. In fact, you do not need to use Joi at all if you do not want to.
 
 `react-joi-validation` was developed and tested using [joi-browser](https://github.com/jeffbski/joi-browser) in a client-side environment.
 
 ## How it works
 
 `react-joi-validation` works by providing a higher order function that wraps any component you wish to validate. It maintains values in its own state and passes them down to your component as props, along with a number of functions you can use to update and validate those values as the user interacts with your component.
- 
+
  The validator component merges the values you define in your component's `defaultProps`, the values you pass the validator component's `props` and the values you set using change handlers when the user interacts with your UI.
- 
+
  It then runs these merged values through a Joi schema that you provide and/or one or more validator functions you define. The resultant error object is merged with errors passed to the validator components `props` (allowing you to validate with your server or some other external party) and passed down to your component.
- 
+
 ### Guiding concepts
- 
+
  * **Succinct and expressive syntax** - `react-joi-validation` removes the need in most cases for defining handlers for user events. You can do them inline for your UI at render time, or add a line to your existing event handler methods if you need custom logic or easy integration with your existing code.
  * **Complete UI independence** - `react-joi-validation` wraps your component and provides change handlers and an error object. What you do with those errors and how you display them is entirely up to you.
  * **Separation of change and validation events** - the validation of values is done separately to maintaining the changes to those values. Often you want to validate a user's input only after they have completed entering it. Because of this decoupling, you can even validate fields other than those that were just changed. This allows validating groups of values when the user has completed setting the final value.
  * **Selective, explicit validation** - `react-joi-validation` makes validating each value explicit, so you can validate a user's input as they do it, rather than validating all fields before the user has even got to them.
  * **Full validation flexibility** - you can chose to use Joi or your own validator functions or trigger events that pass errors in as `props`, making it easy to integrate with any existing project.
  * **Easy integration with external validation** - in addition to the validation `react-joi-validation` performs, it also allows passing in errors from external sources such as errors from your server. It transparently merges them with the `react-joi-validation` errors.
- * **Flexible default values** - it's possible to set defaults for values using either the component's `defaultProps` or the `props` to the validator component (or both). This makes it possible to set default values dynamically at runtime.  
-  
+ * **Flexible default values** - it's possible to set defaults for values using either the component's `defaultProps` or the `props` to the validator component (or both). This makes it possible to set default values dynamically at runtime.
+
 
 ## Higher Order Function API
 
@@ -113,7 +113,7 @@ Joi is not listed as a peer dependency for `react-joi-validation` as there are m
 #### Passing a validation schema
 
 Joi has a very powerful, declarative [API](https://github.com/hapijs/joi/blob/master/API.md). You can use any object that `Joi.validate` would normally accept as a schema, this includes:
- 
+
 > a joi type object or a plain object where every key is assigned a joi type object
 
 You pass it using the `joiSchema` option:
@@ -129,7 +129,7 @@ validate(MyComponent, { joiSchema: schema })
 #### Configuring Validation
 
 You can configure Joi's validation by passing an object to `joiOptions` that contains any of `Joi.validate`'s [supported options](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback).
- 
+
  ```javascript
  validate(MyComponent, { joiSchema: schema, joiOptions: { allowUnknown: true }})
 ```
@@ -180,7 +180,7 @@ var schema = {
 
 #### Validating multiple props
 
-When the `only` option is passed an array, it applies `schema` to an object with only those values and excludes all others.    
+When the `only` option is passed an array, it applies `schema` to an object with only those values and excludes all others.
 
 ```javascript
 var schema = {
@@ -188,7 +188,7 @@ var schema = {
     username: Joi.string().required(),
     password: Joi.string().min(8).required()
   }),
-  
+
   order: Joi.object().keys({
     number: Joi.number().required()
   })
@@ -223,7 +223,7 @@ validate(MyComponent, { validator: [ validator1, validator2 ] })
 ### Pseudovalues
 
 Sometimes it is convenient to have your validator place error messages on attributes of `errors` that do not correspond with any of the actual values being passed down. One example of this is a user must select at least one option from either of two lists and an error message doesn't really fit on either of the individual lists.
- 
+
 You can achieve this using pseudovalues, which are like extra hooks to hang your error messages on. They do not have values or get passed down to the wrapped component, but they can place errors into the `errors` prop. They can also be the target of a validation action.
 
 `pseudoValues` accepts either a string or an array of strings, indicating the names of the pseudovalues you would like to use.
@@ -262,7 +262,7 @@ validate(MyComponent, { validator: validateAtLeastOneProductOrService, pseudoVal
 
 ### Setting errors, externally
 
-By default, `react-joi-validation` will merge any errors passed on the props `errors` with those resultant from validating the user input. This is useful for displaying validation errors from your server, or outside of your component. When the value is changed, it is marked as "touched" and any corresponding external errors are no longer present on the `errors` prop passed down to your component. 
+By default, `react-joi-validation` will merge any errors passed on the props `errors` with those resultant from validating the user input. This is useful for displaying validation errors from your server, or outside of your component. When the value is changed, it is marked as "touched" and any corresponding external errors are no longer present on the `errors` prop passed down to your component.
 
 This means you can validate data externally and display the error until the user first changes its value (and the external error becomes stale). It then falls to local validation again before you to pass it back up to you server or external validation module for re-evaluating.
 
@@ -271,14 +271,14 @@ The prop used for external errors can be set using the `externalErrorsPath` opti
 
 ```javascript
  const MyValidatedComponent = validate(MyComponent, { joiSchema: schema, externalErrorsPath: 'response.errors'})
- 
+
  <MyValidatedComponent response={ { errors } } />
- 
+
 ```
 
 ## Wrapped Component API
 
-When working with your component that is wrapped by `react-joi-validations`, two types of functions are provided to you: 
+When working with your component that is wrapped by `react-joi-validations`, two types of functions are provided to you:
 
 * Functions that return handlers for dealing with various events that give you a convenient for scoping simple event handling
 * The event handlers themselves for when you need to wrap your event handling in some custom logic
@@ -289,17 +289,79 @@ These helpers are for when you want to update the state of the validation compon
 
 #### changeHandler
 
-`changeHandler` is for when you simply want to keep a value in sync with what appears on the UI. It accepts the name of the value to update and an optional set of configuration object. It returns a function that will accept an event object as the first argument and the new value as the second. 
+`changeHandler` is for when you simply want to keep a value in sync with what appears on the UI. It accepts the name of the value to update and an optional set of configuration object. It returns a function that will accept an event object as the first argument and the new value as the second.
 
 ```javascript
 const { user: { username }, changeHandler } = this.props;
 
 return(
   <div>
-    <input value={username} onChange={changeHandler('username')} />  
+    <input value={username} onChange={changeHandler('username')} />
   </div>
 )
 ```
+
+By default `react-joi-validation`'s `changeHandler` function will return a handler that will try and guess which argument it should use as the value for validation when it is called. This should cover 90% of use cases, as it handles the event handler signature used by the standard `<input />` tag.
+
+There are 3 places you can specify an alternative strategy to use:
+
+* The `setChangeHandlerStrategy()` function sets the default handler strategy that should be used globally - it only needs to be called once at the entry point of your application.
+
+```
+import ReactJoiValidations, { guessCorrectValue } from 'react-joi-validation'
+
+ReactJoiValidations.setChangeHandlerStrategy(guessCorrectValue);
+```
+
+* The `changeHandlerStrategy` option can be passed to `validate` and sets the default handler strategy for a single component and takes precedence over any default specified using `setChangeHandlerStrategy()`:
+
+```
+import validate, { guessCorrectValue } from 'react-joi-validation'
+
+var validationOptions = {
+  joiSchema: schema,
+  only: 'user',
+  changeHandlerStrategy: guessCorrectValue,
+};
+
+validate(MyComponent, validationOptions)
+```
+
+* The `strategy` option can be passed to `changeHandler` and sets the handler strategy for a single change handler and takes precedence over any default specified using `setChangeHandlerStrategy()` or `changeHandlerStrategy`:
+
+```
+import validate, { guessCorrectValue } from 'react-joi-validation'
+
+<product onClick={ changeHandler('product', { startegy: guessCorrectValue }) }>
+  Product {id}
+</product>
+```
+
+`react-joi-validation` exports several pre-defined strategies you can import directly into your project:
+
+* `guessCorrectValue` - (Default) Uses `firstArg.event.target` if it's present, otherwise uses `secondArg`.
+* `useFirstArgument` - Uses the (entire) first argument and ignores all others
+* `useSecondArgument` - Uses the second argument and ignores all others
+* `useThirdArgument` - Uses the third argument and ignores all others
+* `useEventTargetValue` - Uses `firstArg.event.target` (and returns `undefined` when it is not present)
+
+If these do not cover what you need, you can pass a custom function that returns the value that should be used for validation every time the change handler is called:
+
+```
+import validate, { guessCorrectValue } from 'react-joi-validation'
+
+var validationOptions = {
+  joiSchema: schema,
+  only: 'user',
+  changeHandlerStrategy: (arg1, arg2) => {
+    return arg2.really.strange.format[0].value;
+  },
+};
+
+validate(MyComponent, validationOptions)
+```
+
+> Change handler strategies are ignored when the `changeHandler`'s `value` option is also used
 
 ##### Validating on every change
 
@@ -307,7 +369,7 @@ If you want to validate on every change, you can do so using the options argumen
 
 ```javascript
 return(
-  <input value={username} onChange={changeHandler('username', { validate: true })} />  
+  <input value={username} onChange={changeHandler('username', { validate: true })} />
 )
 ```
 
@@ -319,8 +381,8 @@ You can set the value a user interaction will have at render time using the `opt
 
 ```javascript
 return(
-  <input type='button' value={termsAndConditions} onChange={changeHandler('username', { value: true })} />  
-)        
+  <input type='button' value={termsAndConditions} onChange={changeHandler('username', { value: true })} />
+)
 ```
 
 #### changeValue
@@ -330,17 +392,17 @@ return(
 ```javascript
 render() {
   const { user: { username } } = this.props;
-  
+
   return(
     <div>
-      <input value={username} onChange={this.handleUsernameChange} />  
+      <input value={username} onChange={this.handleUsernameChange} />
     </div>
   )
 }
 
 handleUsernameChange(event, newUsername){
-  const { changeValue } = this.props;  
-  
+  const { changeValue } = this.props;
+
   // custom code here
   changeValue('username', newUsername)
 }
@@ -370,7 +432,7 @@ Similar to `changeValue`, but accepts an array of path-value tuples that list th
 render() {
   return(
     <div>
-      <button onChange={this.handleClearValues} >  
+      <button onChange={this.handleClearValues} >
         Clear
       </button>
     </div>
@@ -378,8 +440,8 @@ render() {
 }
 
 handleClearValues(event){
-  const { changeValue } = this.props;  
-  
+  const { changeValue } = this.props;
+
   // custom code here
   changeValue([ ['username', ''], ['password', ''] ])
 }
@@ -390,7 +452,7 @@ handleClearValues(event){
 ### Accessing Errors
 
 A component's errors are accessible via the `errors` prop, which is an object keyed by value names. If the object is empty, then there are no errors.
-  
+
 ### Triggering validation
 
 `react-joi-validation` was designed with form validation in mind. As such, it only validates values the values that it is told to, when it is told to. This makes it trivial to validate each field after the user has interacted with it, leaving the rest of the form error free.
@@ -400,12 +462,12 @@ A component's errors are accessible via the `errors` prop, which is an object ke
 
 render() {
   const { user: { username }, errors } = this.props;
-  
+
   return(
     <div>
-      <input value={username} />  
+      <input value={username} />
 
-      <span style={styles.error}> 
+      <span style={styles.error}>
         { errors.username }
       </span>
     </div>
@@ -426,10 +488,10 @@ const { user: { username }, changeHandler, validateHandler } = this.props;
 
 return(
   <div>
-    <input value={username} 
-      onChange={changeHandler('username')} 
+    <input value={username}
+      onChange={changeHandler('username')}
       onBlur={validateHandler('username')}
-    />  
+    />
   </div>
 )
 ```
@@ -441,14 +503,14 @@ const { address: { country, postcode }, changeHandler, validateHandler } = this.
 
 return(
   <div>
-    <input value={postcode} 
-      onChange={changeHandler('postcode')} 
-    /> 
-     
-    <input value={country} 
-      onChange={changeHandler('country')} 
+    <input value={postcode}
+      onChange={changeHandler('postcode')}
+    />
+
+    <input value={country}
+      onChange={changeHandler('country')}
       onBlur={validateHandler(['postcode','country'])}
-    />  
+    />
   </div>
 )
 ```
@@ -460,40 +522,40 @@ return(
 ```javascript
 render() {
   const { user: { username }, changeHandler } = this.props;
-  
+
   return(
     <div>
-      <input value={username} 
-        onChange={changeHandler('username')} 
+      <input value={username}
+        onChange={changeHandler('username')}
         onBlur={this.handleUsernameValidation}
-      />  
+      />
     </div>
   )
 }
 
 handleUsernameValidation(event){
-  const { validate } = this.props;  
-  
+  const { validate } = this.props;
+
   // custom code here
-  
+
   validate('username')
 }
 ```
 
 #### validateAllHandler
 
-`validateAllHandler` is for simple cases where you want to validate all values currently in the validation component's state (including values set by `defaultProps` and passed in as props). It accepts a callback to be executed when the validation is complete (and the current `errors` object is available in props). 
+`validateAllHandler` is for simple cases where you want to validate all values currently in the validation component's state (including values set by `defaultProps` and passed in as props). It accepts a callback to be executed when the validation is complete (and the current `errors` object is available in props).
 
 ```javascript
 render() {
   const { user: { username }, changeHandler, validateAllHandler } = this.props;
-  
+
   return(
     <div>
-      <input value={username} 
-        onChange={changeHandler('username')} 
-      />  
-      
+      <input value={username}
+        onChange={changeHandler('username')}
+      />
+
       <input type="submit" onClick={validateAllHandler(this.handleValidation)} />
     </div>
   )
@@ -501,9 +563,9 @@ render() {
 
 handleValidation(){
   const { errors } = this.props;
-  
+
   if (!any(errors)) {
-    // navigate away      
+    // navigate away
   }
 }
 ```
@@ -515,28 +577,28 @@ handleValidation(){
 ```javascript
 render() {
   const { user: { username }, changeHandler } = this.props;
-  
+
   return(
     <div>
-      <input value={username} 
-        onChange={changeHandler('username')} 
-      />  
-      
+      <input value={username}
+        onChange={changeHandler('username')}
+      />
+
       <input type="submit" onClick={this.handleValidation} />
     </div>
   )
 }
 
 handleValidation(){
-  const { validateAll } = this.props;  
-  
+  const { validateAll } = this.props;
+
   // custom code here
-  
+
   validateAll(() => {
     const { errors } = this.props;
-    
+
     if (!any(errors)) {
-      // navigate away      
+      // navigate away
     }
   });
 }
@@ -546,14 +608,14 @@ handleValidation(){
 
 #### Clearing validation errors
 
-It's possible to clear the validation errors for some or all of the data your component is managing. Calling `clearValidation` with no arguments will clear all errors. You can selectively clear validation errors for individual attributes by passing a path as a string or array of path strings. 
+It's possible to clear the validation errors for some or all of the data your component is managing. Calling `clearValidation` with no arguments will clear all errors. You can selectively clear validation errors for individual attributes by passing a path as a string or array of path strings.
 
 ```javascript
 handleValidation() {
-  const { clearValidation, overrideValidation } = this.props;  
-  
+  const { clearValidation, overrideValidation } = this.props;
+
   if (overrideValidation) {
-    clearValidation(); // or clearValidation('user.username')    
+    clearValidation(); // or clearValidation('user.username')
   }
 }
 ```
@@ -566,16 +628,16 @@ This is useful when you want to pass responsibility for the data out of the comp
 
 ```javascript
 handleValidation(){
-  const { validateAll } = this.props;  
-  
+  const { validateAll } = this.props;
+
   // custom code here
-  
+
   validateAll(() => {
     const { errors, clearValidationAndResetValues } = this.props;
-    
+
     if (!any(errors)) {
-      // send to your store or server      
-      
+      // send to your store or server
+
       this.clearValidationAndResetValues()
     }
   });
@@ -585,7 +647,7 @@ handleValidation(){
 ## Validator function interface
 
 A custom validator function can be used with or instead of a Joi validation schema. It is passed using the `validator` option to the higher order component API (see [Using a validator function](#using-a-validator-function) for details).
-  
+
 The function must accept two arguments: an object of options and a callback. The options object contains the following values:
 
 **OK to modify or replace:**
@@ -599,8 +661,8 @@ The function must accept two arguments: an object of options and a callback. The
 * `validatedValues` - an array of value paths (strings) that record which values should be validated. Should be used in conjunction with `validateAllValues` to decide if you should validate particular fields even when they are not listed in `validatedValues`.
 * `changingValues` - an array of value paths that indicate which values have changed since the last time the validator was called. This is useful for only modifying `values` when certain fields are modified.
 * `props` - the props passed to the validator component. This is useful when the `only` option is in effect, for using prop values outside the validation schema to validate values in it.
- 
- 
+
+
 The function **must** call the callback with an object containing two attributes:
 * `values`: the object of values, which may be unchanged or mutated by the validator function
 * `errors`: the object of errors, which may be unchanged or mutated by the validator function
@@ -624,7 +686,7 @@ function validateSquareNumberOfImages({ values, validateAllValues, validatedValu
 You can run the complete test suite using the following command:
 
 ```bash
-npm run tests 
+npm run tests
 ```
 
 If you are creating a contribution and would like to run the tests whenever you save a file:
@@ -639,5 +701,5 @@ All contributions are welcome and encouraged.
 
 ## Similar libraries
 
-If `react-joi-validation` does not meet your needs for whatever reason, you may want to check out [react-validation-mixin](https://github.com/jurassix/react-validation-mixin). 
+If `react-joi-validation` does not meet your needs for whatever reason, you may want to check out [react-validation-mixin](https://github.com/jurassix/react-validation-mixin).
 

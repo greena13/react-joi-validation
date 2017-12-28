@@ -1,5 +1,3 @@
-'use strict';
-
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
@@ -41,7 +39,40 @@ const DEFAULT_STATE = {
   validateAllValues: false
 };
 
-const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validator, only, pseudoValues = [], externalErrorsPath }) => {
+export function guessCorrectValue(event, value) {
+  /**
+   * Inspect the callback arguments when the handler is called
+   */
+  const eventTargetValue = get(event, 'target.value');
+
+  if (eventTargetValue) {
+    // Use value from event object
+    return eventTargetValue;
+  } else {
+    // Use value provided as second argument
+    return value;
+  }
+}
+
+export function useEventTargetValue(event) {
+  return get(event, 'target.value');
+}
+
+export function useFirstArgument(value) {
+  return value;
+}
+
+export function useSecondArgument(arg1, value) {
+  return value;
+}
+
+export function useThirdArgument(arg1, arg2, value) {
+  return value;
+}
+
+let defaultChangeHandlerStrategy = guessCorrectValue;
+
+const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validator, only, pseudoValues = [], externalErrorsPath, changeHandlerStrategy }) => {
   function usingSingularValidationScope(){
     return isString(only);
   }
@@ -302,7 +333,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     }
 
     changeHandler(valuePath, options = {}) {
-      return (event, value) => {
+      return (firstArg, secondArg, thirdArg) => {
 
         const valueToUse = function(){
           if (has(options, 'value')) {
@@ -313,18 +344,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
              */
             return options.value;
           } else {
-            /**
-             * Inspect the callback arguments when the handler is called
-             */
-            const eventTargetValue = get(event, 'target.value');
-
-            if (eventTargetValue) {
-              // Use value from event object
-              return eventTargetValue;
-            } else {
-              // Use value provided as second argument
-              return value;
-            }
+            return (options.strategy || changeHandlerStrategy || defaultChangeHandlerStrategy)(firstArg, secondArg, thirdArg);
           }
         }();
 
@@ -524,6 +544,10 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
 ReactJoiValidation.setJoi = function(joiClass) {
   Joi = joiClass;
+};
+
+ReactJoiValidation.setChangeHandlerStrategy = function(changeHandlerStrategy) {
+  defaultChangeHandlerStrategy = changeHandlerStrategy;
 };
 
 export default ReactJoiValidation;
