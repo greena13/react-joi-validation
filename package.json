@@ -4,7 +4,7 @@
   "description": "Extremely flexible validation using Joi and React",
   "main": "lib/index.js",
   "scripts": {
-    "build": "babel --presets=es2015,stage-0,react src -d lib",
+    "prepublish": "babel --presets=es2015,stage-0,react src -d lib",
     "build-for-tests": "babel --presets=es2015,stage-0,react src -d lib --source-maps",
     "build-tests": "babel --presets=es2015,stage-0,react spec -d lib/spec --source-maps",
     "tests": "npm run build-for-tests && npm run build-tests && jasmine",
