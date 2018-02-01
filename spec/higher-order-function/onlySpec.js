@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import validate from '../../index'
 import Joi from 'joi-browser';
 
@@ -26,7 +26,7 @@ describe('higher order function when the only option', () => {
     this.oldDefaultProps = WrappedComponent.defaultProps;
 
     this.refreshComponentState = refreshComponentState.bind(this);
-    this.renderer = TestUtils.createRenderer();
+    this.renderer = new ShallowRenderer();
 
     this.expectComponentToHaveProps = expectComponentToHaveProps.bind(this);
     this.expectComponentToHaveErrors = expectComponentToHaveErrors.bind(this);
@@ -562,7 +562,7 @@ describe('higher order function when the only option', () => {
     const ValidatedComponent = validate(WrappedComponent, { joiSchema, only: 'user.details' });
 
     beforeEach(function() {
-      this.renderer = TestUtils.createRenderer();
+      this.renderer = new ShallowRenderer();
 
       this.refreshComponentState = refreshComponentState.bind(this);
       this.expectComponentToHaveProps = expectComponentToHaveProps.bind(this);
@@ -780,7 +780,7 @@ describe('higher order function when the only option', () => {
     const ValidatedComponent = validate(WrappedComponent, { joiSchema: { user: joiSchema }, only: ['user'] });
 
     beforeEach(function() {
-      this.renderer = TestUtils.createRenderer();
+      this.renderer = new ShallowRenderer();
 
       this.refreshComponentState = refreshComponentState.bind(this);
       this.expectComponentToHaveProps = expectComponentToHaveProps.bind(this);

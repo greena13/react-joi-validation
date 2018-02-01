@@ -4,9 +4,9 @@
   "description": "Extremely flexible validation using Joi and React",
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "babel --presets=es2015,stage-0,react src -d lib",
+    "prepublish": "rm -rf lib && babel --presets=es2015,stage-0,react src -d lib",
     "build-for-tests": "babel --presets=es2015,stage-0,react src -d lib --source-maps",
-    "build-tests": "babel --presets=es2015,stage-0,react spec -d lib/spec --source-maps",
+    "build-tests": "rm -rf lib/spec && babel --presets=es2015,stage-0,react spec -d lib/spec --source-maps",
     "tests": "npm run build-for-tests && npm run build-tests && jasmine",
     "watch-tests": "nodemon --exec 'npm run tests || true'"
   },
@@ -65,11 +65,10 @@
     "joi-browser": "^10.0.6",
     "lodash.omit": "^4.5.0",
     "nodemon": "^1.11.0",
-    "react": "^15.6.1",
-    "react-addons-test-utils": "^15.6.0",
+    "react": "^16.2.0",
     "react-core": "^0.0.0",
-    "react-dom": "^15.6.1",
-    "react-test-renderer": "^15.6.1",
+    "react-dom": "^16.2.0",
+    "react-test-renderer": "^16.2.0",
     "source-map-support": "^0.4.15"
   },
   "peerDependencies": {

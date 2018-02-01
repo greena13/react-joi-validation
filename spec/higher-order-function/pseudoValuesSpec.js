@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import validate from '../../index'
 import Joi from 'joi-browser';
 
@@ -13,7 +13,7 @@ describe('higher order function when the pseudoValues option', () => {
 
   beforeEach(function() {
     this.refreshComponentState = refreshComponentState.bind(this);
-    this.renderer = TestUtils.createRenderer();
+    this.renderer = new ShallowRenderer();
 
     this.validator = function({ values }, callback) {
       callback({ values, errors: { starSign: 'is not valid' } });

@@ -2,13 +2,13 @@ import React from 'react';
 import Joi from 'joi-browser';
 import ShallowRenderer from 'react-test-renderer/shallow';
 
-import validate, { useFirstArgument, useSecondArgument, useThirdArgument } from '../../index';
+import validate, { useFirstArgument, useSecondArgument, useThirdArgument, guessCorrectValue } from '../../index';
 import WrappedComponent from '../WrappedComponent';
 import refreshComponentState from '../support/refreshComponentState';
 
 validate.setJoi(Joi);
 
-fdescribe('Change handler transform:', () => {
+describe('Change handler transform:', () => {
   const joiSchema = {
     a: Joi.string().required()
   };
@@ -48,7 +48,7 @@ fdescribe('Change handler transform:', () => {
     });
 
     afterEach(function() {
-       validate.setChangeHandlerStrategy(null);
+       validate.setChangeHandlerStrategy(guessCorrectValue);
     });
 
     it('then uses the specified handler transform', function(){
@@ -76,7 +76,7 @@ fdescribe('Change handler transform:', () => {
     });
 
     afterEach(function() {
-       validate.setChangeHandlerStrategy(null);
+      validate.setChangeHandlerStrategy(guessCorrectValue);
     });
 
     it('then uses the change handler transform specified using changeHandlerStrategy', function(){
@@ -126,7 +126,7 @@ fdescribe('Change handler transform:', () => {
     });
 
     afterEach(function() {
-       validate.setChangeHandlerStrategy(null);
+      validate.setChangeHandlerStrategy(guessCorrectValue);
     });
 
     it('then uses the change handler transform specified using the strategy option', function(){

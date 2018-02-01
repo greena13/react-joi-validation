@@ -1,5 +1,5 @@
 import React from 'react';
-import TestUtils from 'react-dom/test-utils';
+import ShallowRenderer from 'react-test-renderer/shallow';
 import validate from '../../index'
 import Joi from 'joi-browser';
 import each from 'lodash.foreach';
@@ -20,7 +20,7 @@ describe('higher order function when the validator option', () => {
     this.oldDefaultProps = WrappedComponent.defaultProps;
 
     this.refreshComponentState = refreshComponentState.bind(this);
-    this.renderer = TestUtils.createRenderer();
+    this.renderer = new ShallowRenderer();
 
     this.expectComponentToHaveProps = expectComponentToHaveProps.bind(this);
     this.expectComponentToHaveErrors = expectComponentToHaveErrors.bind(this);
