@@ -449,6 +449,166 @@ handleClearValues(event){
 
 `changeValues` accepts the same options as `changeValue`. If `validate: true` is used, all values listed in the array are validated.
 
+### Working with arrays
+
+Although you can work with the functions above to maintain array values, additional syntactic sugar has been provided:
+
+#### pushHandler
+
+Similar to `changeHandler`, but rather than replace the value at the provided `path` with a new one, it will push the new value onto the end of the array stored at `path`. This is useful for when checkboxes are ticked or similar situations where new values need to be added to a list.
+
+`pushHandler` accepts all of the options that `changeHandler` does, and one extra:
+
+- `allowDuplicates` - (Default: `true`) Whether to push a value onto the array if that value is already in the list.
+
+```javascript
+render() {
+  const { pushHandler, pullHandler, cities } = this.props;
+
+  return(
+    ["Paris", "New York City", "London"].map((city) => {
+      return(
+        <input type='button' label={ "Add " + city } onClick={ pushHandler('cities') } />
+      );
+    }
+  );
+}
+```
+
+#### pushValue
+
+`pushValue` is for whenever `pushHandler` is not flexible enough. It accepts a `path` to an array to push a `value` to.
+
+`pushValue` accepts all of the options that `changeValue` does, and one extra:
+
+- `allowDuplicates` - (Default: `true`) Whether to push a value onto the array if that value is already in the list.
+
+```javascript
+render() {
+  const { pushHandler } = this.props;
+
+  return(
+    ["Paris", "New York City", "London"].map((city) => {
+      return(
+        <input type='button' label={ "Add " + city } onClick={ this.handleAddCity(city) } />
+      );
+    }
+  );
+}
+
+handleAddCity(city) {
+   const { pushValue, cities } = this.props;
+
+   if (cities.indexOf(city) === -1 ) {
+      pushValue('cities', city);
+   }
+}
+```
+
+#### unshiftHandler
+
+Similar to `pushHandler`, but will add the new value to the *beginning* of an array, rather than at the end.
+
+`unshiftHandler` accepts all of the options that `pushHandler` does, and one extra:
+
+- `allowDuplicates` - (Default: `true`) Whether to unshift a value onto the array if that value is already in the list.
+
+#### unshiftValue
+
+Similar to `pushValue`, but will add the new value to the *beginning* of an array, rather than at the end.
+
+`unshiftValue` accepts all of the options that `changeValue` does, and one extra:
+
+- `allowDuplicates` - (Default: `true`) Whether to push a value onto the array if that value is already in the list.
+
+#### pullHandler
+
+The opposite of `pushHandler` and `unshiftHandler`, `pullHandler` will remove one or more elements from an array stored at `path`.
+
+`pullHandler` accepts a `path` to the array to remove an element from, and an `options` hash. It returns a handler function, that when called, will remove the value passed to it from the array.
+
+Exactly how this is done depends on what options are provided:
+
+* `<no options>` - (Default) Only the *first* instance of the value passed to the handler will be removed from the array at `path`.
+* `index=<int>` - The element at the specified index will be removed from the array at `path`
+* `removeAllInstances` - When set to `true`, (default is `false`), *all* instances of the value passed to the handler will be removed from the array at `path`.
+
+Default behaviour:
+
+```javascript
+render() {
+  const { pullHandler, pullHandler, cities } = this.props;
+
+  return(
+    cities.map((city) => {
+      return(
+        <input type='button' label={ "Remove " + city } onClick={ pullHandler('cities') } />
+      );
+    }
+  );
+}
+```
+
+Using the `index` option:
+
+```javascript
+render() {
+  const { pullHandler, pullHandler, cities } = this.props;
+
+  return(
+    cities.map((city, index) => {
+      return(
+        <input type='button' label={ "Remove " + city } onClick={ pullHandler('cities', { index: index }) } />
+      );
+    }
+  );
+}
+```
+
+Using the `removeAllInstances` option:
+
+```javascript
+render() {
+  const { pullHandler, pullHandler, cities } = this.props;
+
+  return(
+    cities.map((city, index) => {
+      return(
+        <input type='button' label={ "Remove " + city } onClick={ pullHandler('cities', { removeAllInstances: true }) } />
+      );
+    }
+  );
+}
+```
+
+#### pullValue
+
+`pullValue` is for whenever `pullHandler` is not flexible enough. It accepts a `path` to an array to remove a `value` from.
+
+`pullValue` accepts all of the options that `pullHandler` does.
+
+```javascript
+render() {
+  const { cities } = this.props;
+
+  return(
+    cities.map((city, index) => {
+      return(
+        <input type='button' label={ "Remove " + city } onClick={ this.handleRemoveCity } />
+      );
+    }
+  );
+}
+
+handleRemoveCity(city) {
+   const { pullValue, cities, user } = this.props;
+
+   if (user.isAdmin) {
+      pullValue('cities', city);
+   }
+}
+```
+
 ### Accessing Errors
 
 A component's errors are accessible via the `errors` prop, which is an object keyed by value names. If the object is empty, then there are no errors.

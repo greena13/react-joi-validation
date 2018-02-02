@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
 import set from 'lodash.set';
@@ -40,6 +39,7 @@ const DEFAULT_STATE = {
 };
 
 export function guessCorrectValue(event, value) {
+
   /**
    * Inspect the callback arguments when the handler is called
    */
@@ -116,6 +116,20 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     }, {});
   }
 
+  function getValueToUse(options, firstArg, secondArg, thirdArg) {
+    if (has(options, 'value')) {
+
+      /**
+       * Allow setting a fixed value at the time of binding the change
+       * handler and ignore whatever value is passed when the handler
+       * is called
+       */
+      return options.value;
+    } else {
+      return (options.strategy || changeHandlerStrategy || defaultChangeHandlerStrategy)(firstArg, secondArg, thirdArg);
+    }
+  }
+
   class ValidatorComponent extends Component {
     constructor(props, context) {
       super(props, context);
@@ -124,6 +138,19 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       this.changesHandler = this.changesHandler.bind(this);
       this.changeValue = this.changeValue.bind(this);
       this.changeValues = this.changeValues.bind(this);
+
+      this.pushHandler = this.pushHandler.bind(this);
+      this.pushValue = this.pushValue.bind(this);
+      this.togglePushHandler = this.togglePushHandler.bind(this);
+      this.togglePushValue = this.togglePushValue.bind(this);
+
+      this.unshiftHandler = this.unshiftHandler.bind(this);
+      this.unshiftValue = this.unshiftValue.bind(this);
+      this.toggleUnshiftHandler = this.toggleUnshiftHandler.bind(this);
+      this.toggleUnshiftValue = this.toggleUnshiftValue.bind(this);
+
+      this.pullHandler = this.pullHandler.bind(this);
+      this.pullValue = this.pullValue.bind(this);
 
       this.validateHandler = this.validateHandler.bind(this);
       this.validate = this.validate.bind(this);
@@ -153,6 +180,19 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
           changesHandler={ this.changesHandler }
           changeValue={ this.changeValue }
           changeValues={ this.changeValues }
+
+          pushHandler={ this.pushHandler }
+          pushValue={ this.pushValue }
+          togglePushHandler={ this.togglePushHandler }
+          togglePushValue={ this.togglePushValue }
+
+          unshiftHandler={ this.unshiftHandler }
+          unshiftValue={ this.unshiftValue }
+          toggleUnshiftHandler={ this.toggleUnshiftHandler }
+          toggleUnshiftValue={ this.toggleUnshiftValue }
+
+          pullHandler={ this.pullHandler }
+          pullValue={ this.pullValue }
 
           validateHandler={ this.validateHandler }
           validate={ this.validate }
@@ -223,6 +263,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
         const propValues = reduce(validateableFields, (memo, path) => {
           const pathSegments = path.split(/[.[]/);
+
           /**
            * When using a complex or nested path for the 'only' option, we need
            * to copy the root object - not just the leaf node - to ensure attributes
@@ -259,6 +300,10 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
         });
       }
 
+    }
+
+    _getCurrentValue(path) {
+      return get(unwrapObject(this._valuesWithDefaults(this.state)), path);
     }
 
     clearValidationState(paths){
@@ -332,23 +377,126 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       });
     }
 
+    pushHandler(valuePath, options = {}) {
+      return (firstArg, secondArg, thirdArg) => {
+        this.pushValue(valuePath, getValueToUse(options, firstArg, secondArg, thirdArg), options);
+      }
+    }
+
+    pushValue(valuePath, value, options = {}) {
+      this.addValue('end', valuePath, value, options);
+    }
+
+    togglePushHandler(valuePath, options = {}) {
+      return (firstArg, secondArg, thirdArg) => {
+        this.togglePushValue(valuePath, getValueToUse(options, firstArg, secondArg, thirdArg), options);
+      }
+    }
+
+    togglePushValue(valuePath, value, options = {}) {
+      const currentValue = this._getCurrentValue(valuePath) || [];
+
+      if (currentValue.indexOf(value) === -1) {
+        this.addValue('end', valuePath, value, { ...options, allowDuplicates: false });
+      } else {
+        this.pullValue(valuePath, value, { ...options, removeAllInstances: true });
+      }
+    }
+
+    unshiftHandler(valuePath, options = {}) {
+      return (firstArg, secondArg, thirdArg) => {
+        this.unshiftValue(valuePath, getValueToUse(options, firstArg, secondArg, thirdArg), options);
+      }
+    }
+
+    unshiftValue(valuePath, value, options = {}) {
+      this.addValue('start', valuePath, value, options);
+    }
+
+    toggleUnshiftHandler(valuePath, options = {}) {
+      return (firstArg, secondArg, thirdArg) => {
+        this.toggleUnshiftValue(valuePath, getValueToUse(options, firstArg, secondArg, thirdArg), options);
+      }
+    }
+
+    toggleUnshiftValue(valuePath, value, options = {}) {
+      const currentValue = this._getCurrentValue(valuePath) || [];
+
+      if (currentValue.indexOf(value) === -1) {
+        this.addValue('start', valuePath, value, { ...options, allowDuplicates: false });
+      } else {
+        this.pullValue(valuePath, value, { ...options, removeAllInstances: true });
+      }
+    }
+
+    addValue(position, valuePath, value, options) {
+      const currentValue = this._getCurrentValue(valuePath) || [];
+
+      const newValue = function(){
+        if (options.allowDuplicates === false && currentValue.indexOf(value) !== -1) {
+          return currentValue;
+        }
+
+        if (position === 'start') {
+          return [ value, ...currentValue ];
+        } else {
+          return [ ...currentValue, value ];
+        }
+      }();
+
+      this.changeValue(
+        valuePath,
+        newValue,
+        options
+      )
+    }
+
+    pullHandler(valuePath, options = {}) {
+      return (firstArg, secondArg, thirdArg) => {
+        this.pullValue(valuePath, getValueToUse(options, firstArg, secondArg, thirdArg), options);
+      }
+    }
+
+    pullValue(valuePath, value, options = {}) {
+      const currentValue = this._getCurrentValue(valuePath) || [];
+
+      const finalValue = function(){
+        if (options.removeAllInstances) {
+          return currentValue.reduce((memo, element) => {
+            if (element !== value) {
+              memo.push(element);
+            }
+
+            return memo;
+          }, []);
+        } else {
+          invariant(!has(options, 'index') || (typeof options.index === 'number'),
+            `pullValue's options.index must be a number; Received ${options.index} instead`
+          );
+
+          const index = has(options, 'index') ? options.index : currentValue.indexOf(value);
+
+          if (index === -1) {
+            return currentValue;
+          } else {
+            return [
+              ...currentValue.slice(0, index),
+              ...currentValue.slice(index + 1)
+            ];
+          }
+        }
+      }();
+
+      this.changeValue(
+        valuePath,
+        finalValue,
+        options
+      )
+    }
+
     changeHandler(valuePath, options = {}) {
       return (firstArg, secondArg, thirdArg) => {
-
-        const valueToUse = function(){
-          if (has(options, 'value')) {
-            /**
-             * Allow setting a fixed value at the time of binding the change
-             * handler and ignore whatever value is passed when the handler
-             * is called
-             */
-            return options.value;
-          } else {
-            return (options.strategy || changeHandlerStrategy || defaultChangeHandlerStrategy)(firstArg, secondArg, thirdArg);
-          }
-        }();
-
-        this.changeValue(valuePath, valueToUse, options);
+        this.changeValue(valuePath, getValueToUse(options, firstArg, secondArg, thirdArg), options);
       };
     }
 
@@ -492,7 +640,6 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
 
     _callValidatorIfDefined(validatorList, validatorOptions, afterValidatorHasRun) {
 
-
       if (validatorList.length > 0) {
         const callback = (() => {
           if (validatorList.length > 1) {
@@ -532,12 +679,6 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       };
     }
   }
-
-  ValidatorComponent.propTypes = {
-    onSubmit: PropTypes.func,
-    errors: PropTypes.object,
-    onChange: PropTypes.func
-  };
 
   return ValidatorComponent;
 };
