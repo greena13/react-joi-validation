@@ -387,7 +387,7 @@ return(
 
 #### changeValue
 
-`changleValue` is for whenever `changleHandler` is not flexible enough. It accepts the name of the value to change and the new value.
+`changeValue` is for whenever `changeHandler` is not flexible enough. It accepts the name of the value to change and the new value.
 
 ```javascript
 render() {
@@ -440,10 +440,10 @@ render() {
 }
 
 handleClearValues(event){
-  const { changeValue } = this.props;
+  const { changeValues } = this.props;
 
   // custom code here
-  changeValue([ ['username', ''], ['password', ''] ])
+  changeValues([ ['username', ''], ['password', ''] ])
 }
 ```
 
@@ -463,7 +463,7 @@ Similar to `changeHandler`, but rather than replace the value at the provided `p
 
 ```javascript
 render() {
-  const { pushHandler, pullHandler, cities } = this.props;
+  const { pushHandler, cities } = this.props;
 
   return(
     ["Paris", "New York City", "London"].map((city) => {
@@ -485,8 +485,6 @@ render() {
 
 ```javascript
 render() {
-  const { pushHandler } = this.props;
-
   return(
     ["Paris", "New York City", "London"].map((city) => {
       return(
@@ -505,6 +503,56 @@ handleAddCity(city) {
 }
 ```
 
+#### togglePushHandler
+
+Returns a function that, when called, pushes a value onto the end of an array if that value is not already in the array, otherwise it removes it. i.e. it toggles that value's inclusion in the array.
+
+`togglePushHandler` accepts all of the options that `changeHandler` does.
+
+```javascript
+render() {
+  const { togglePushHandler, cities } = this.props;
+
+  return(
+    ["Paris", "New York City", "London"].map((city) => {
+      return(
+        <label>
+            <input type='checkbox' onClick={ togglePushHandler('cities') } />
+            { city }
+        </label>
+      );
+    }
+  );
+}
+```
+
+#### togglePushValue
+
+Pushes a value onto the end of an array if that value is not already in the array, otherwise it removes it. i.e. it toggles that value's inclusion in the array.
+
+`togglePushValue` accepts all of the options that `changeValue` does.
+
+```javascript
+render() {
+  return(
+    ["Paris", "New York City", "London"].map((city) => {
+      return(
+        <label>
+            <input type='checkbox' onClick={ this.handleToggleCity('cities') } />
+            { city }
+        </label>
+      );
+    }
+  );
+}
+
+handleToggleCity(city) {
+   const { togglePushHandler, cities } = this.props;
+
+  togglePushHandler('cities', city);
+}
+```
+
 #### unshiftHandler
 
 Similar to `pushHandler`, but will add the new value to the *beginning* of an array, rather than at the end.
@@ -520,6 +568,19 @@ Similar to `pushValue`, but will add the new value to the *beginning* of an arra
 `unshiftValue` accepts all of the options that `changeValue` does, and one extra:
 
 - `allowDuplicates` - (Default: `true`) Whether to push a value onto the array if that value is already in the list.
+
+#### toggleUnshiftHandler
+
+Similar to togglePushHandler, but instead the returned function, when called, adds a value to the start of an array if that value is not already in the array, otherwise it removes it. i.e. it toggles that value's inclusion in the array.
+
+`toggleUnshiftHandler` accepts all of the options that `changeHandler` does.
+
+#### toggleUnshiftValue
+
+Similar to togglePushValue, but instead it adds a value to the start of an array if that value is not already in the array, otherwise it removes it. i.e. it toggles that value's inclusion in the array.
+
+`toggleUnshiftValue` accepts all of the options that `changeValue` does.
+
 
 #### pullHandler
 
@@ -569,7 +630,7 @@ Using the `removeAllInstances` option:
 
 ```javascript
 render() {
-  const { pullHandler, pullHandler, cities } = this.props;
+  const { pullHandler, cities } = this.props;
 
   return(
     cities.map((city, index) => {
