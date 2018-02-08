@@ -1,5 +1,9 @@
 # react-joi-validation
 
+[![npm](https://img.shields.io/npm/dm/react-joi-validation.svg)]()
+[![Build Status](https://travis-ci.org/greena13/react-joi-validation.svg)](https://travis-ci.org/greena13/react-joi-validation)
+[![GitHub license](https://img.shields.io/github/license/greena13/react-joi-validation.svg)](https://github.com/greena13/react-joi-validation/blob/master/LICENSE)
+
 ## Features
 
 * Extremely flexible and easy to integrate with your data persistence and UI layers
