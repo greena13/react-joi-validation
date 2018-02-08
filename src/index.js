@@ -822,8 +822,6 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
      * Updates the specified attribute with a new value
      *
      * @param {String} valuePath A path pointing to the attribute to update
-     * @param {Object<String,*>?} options A hash of options that configure how the
-     *        attribute is updated
      * @param {*} value The new value to update the attribute to.
      * @param {Object<String,*>?} options A hash of configuration options
      * @param {Boolean|String|Array.<String>?} options.validate Whether to validate
@@ -1040,7 +1038,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
      * in the validation component's state (including values set by defaultProps
      * and passed in as props).
      *
-     * @param {Array.<String>} validatePaths List of paths to values that will
+     * @param {String|Array.<String>} validatePaths List of paths to values that will
      *        be validated when the returned function is called
      * @param {Function?} callback Function to call once the validation has been
      *        completed and any error messages set.
@@ -1076,7 +1074,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
      * Validates some of the values currently in the validation component's state
      * (including values set by defaultProps and passed in as props).
      *
-     * @param {Array.<String>} validatePaths List of paths to values that will
+     * @param {String|Array.<String>} validatePaths List of paths to values that will
      *        be validated when the returned function is called
      * @param {Function?} afterValidationCallback Function to call once the
      *        validation has been completed and any error messages set.
@@ -1112,7 +1110,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
      * Clears the validation state and resets values for some or all of the values
      * being handled by the validator component.
      *
-     * @param {String|Array.<String>} paths A path, or a list of paths for which any
+     * @param {String|Array.<String>?} paths A path, or a list of paths for which any
      *      errors or values, should be reset to the default. If not provided, all values
      *      and errors are reset to their default.
      *
@@ -1131,7 +1129,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
      * Clears the validation state and resets values for some or all of the values
      * being handled by the validator component.
      *
-     * @param {String|Array.<String>} paths A path, or a list of paths for which any
+     * @param {String|Array.<String>?} paths A path, or a list of paths for which any
      *      errors or values, should be reset to the default. If not provided, all values
      *      and errors are reset to their default.
      *
@@ -1184,7 +1182,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     /**
      * Clears the validation state for some or all of the values being handled by
      * the validator component. The actual values are NOT reset.
-     * @param {String|Array.<String>} paths A path, or a list of paths for which any
+     * @param {String|Array.<String>?} paths A path, or a list of paths for which any
      *      values should be reset to the default. If not provided, all values
      *      and errors are reset to their default.
      *
