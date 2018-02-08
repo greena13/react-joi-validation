@@ -1,6 +1,6 @@
 {
   "name": "react-joi-validation",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Extremely flexible validation using Joi and React",
   "main": "lib/index.js",
   "scripts": {
@@ -24,6 +24,7 @@
     "lib",
     "package.json",
     "README.md",
+    "LICENSE",
     "index.d.ts"
   ],
   "typings": "./index.d.ts",
