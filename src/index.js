@@ -885,7 +885,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
      * )
      */
 
-    changesHandler(changes, options) {
+    changesHandler(changes, options = {}) {
       return () => {
         this.changeValues(changes, options);
       };
@@ -924,7 +924,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
      * }
      */
 
-    changeValues(changes, { validate = false, callback = emptyFunc }) {
+    changeValues(changes, { validate = false, callback = emptyFunc } = {}) {
       invariant(Array.isArray(changes),
         'Changes must be an array of path-value pairs'
       );
@@ -946,7 +946,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
       } else {
         const nextState = this._newState({ changes });
 
-        this.setState(nextState, callback);
+        this.setState(nextState);
       }
 
     }
