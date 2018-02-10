@@ -819,7 +819,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     }
 
     /**
-     * Updates the specified attribute with a new value
+     * Updates an attribute with a new value
      *
      * @param {String} valuePath A path pointing to the attribute to update
      * @param {*} value The new value to update the attribute to.
@@ -1182,6 +1182,7 @@ const ReactJoiValidation = (ValidatedComponent, { joiSchema, joiOptions, validat
     /**
      * Clears the validation state for some or all of the values being handled by
      * the validator component. The actual values are NOT reset.
+     *
      * @param {String|Array.<String>?} paths A path, or a list of paths for which any
      *      values should be reset to the default. If not provided, all values
      *      and errors are reset to their default.
