@@ -2,7 +2,7 @@ import React from 'react';
 import Joi from 'joi-browser';
 import ShallowRenderer from 'react-test-renderer/shallow';
 
-import validate, { useFirstArgument, useSecondArgument, useThirdArgument, guessCorrectValue } from '../../index';
+import validate, { useFirstArgument, useSecondArgument, useThirdArgument, guessCorrectValue } from '../../react-joi-validation.development';
 import WrappedComponent from '../WrappedComponent';
 import refreshComponentState from '../support/refreshComponentState';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import ShallowRenderer from 'react-test-renderer/shallow';
-import validate from '../../index'
+import validate from '../../react-joi-validation.development'
 import Joi from 'joi-browser';
 
 import refreshComponentState from '../support/refreshComponentState';
