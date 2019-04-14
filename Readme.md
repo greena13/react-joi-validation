@@ -1,4 +1,7 @@
-# react-joi-validation
+<p align="center">
+  <img src="https://svgshare.com/i/CRy.svg" width="200px" /><br/>
+  <h2 align="center">react-joi-validation</h2>
+</p>
 
 [![npm](https://img.shields.io/npm/dm/react-joi-validation.svg)]()
 [![Build Status](https://travis-ci.org/greena13/react-joi-validation.svg)](https://travis-ci.org/greena13/react-joi-validation)
